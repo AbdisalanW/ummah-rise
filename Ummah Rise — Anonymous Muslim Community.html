@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<!-- saved from url=(0045)file:///C:/Users/abdis/Downloads/index_2.html -->
-<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Ummah Rise — Anonymous Muslim Community</title>
-<link rel="manifest" href="file:///C:/Users/abdis/Downloads/manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Ummah Rise">
-<link rel="apple-touch-icon" href="file:///C:/Users/abdis/Downloads/icon-192.png">
-<meta name="theme-color" content="#0d0f0e">
-<link rel="preconnect" href="https://fonts.googleapis.com/">
-<link href="./Ummah Rise — Anonymous Muslim Community_files/css2" rel="stylesheet">
+<link rel="manifest" href="manifest.json"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Ummah Rise"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<meta name="theme-color" content="#0d0f0e"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root {
   --bg: #0d0f0e;
@@ -248,7 +248,7 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
     </div>
   </div>
   <div style="display:flex;gap:8px;">
-    <button onclick="document.getElementById(&#39;install-banner&#39;).style.display=&#39;none&#39;" style="padding:7px 12px;font-size:12px;border:1px solid rgba(255,255,255,0.1);border-radius:99px;background:transparent;color:#9a9e96;cursor:pointer;">Later</button>
+    <button onclick="document.getElementById('install-banner').style.display='none'" style="padding:7px 12px;font-size:12px;border:1px solid rgba(255,255,255,0.1);border-radius:99px;background:transparent;color:#9a9e96;cursor:pointer;">Later</button>
     <button onclick="installApp()" style="padding:7px 14px;font-size:12px;font-weight:600;border:none;border-radius:99px;background:#4ade80;color:#0d1a10;cursor:pointer;">Install</button>
   </div>
 </div>
@@ -263,7 +263,7 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       <span class="pill">Community support</span>
       <span class="pill">Marriage Fund</span>
     </div>
-    <button class="btn-primary" onclick="enterApp()">Enter the community</button><br>
+    <button class="btn-primary" onclick="enterApp()">Enter the community</button><br/>
     <button class="btn-ghost" onclick="enterApp()">Browse as guest</button>
   </div>
 </div>
@@ -280,10 +280,10 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       </div>
     </div>
     <div class="tabs">
-      <button class="tab on" onclick="filterPosts(&#39;all&#39;,this)">All</button>
-      <button class="tab" onclick="filterPosts(&#39;m&#39;,this)">Marriage</button>
-      <button class="tab" onclick="filterPosts(&#39;me&#39;,this)">Mental health</button>
-      <button class="tab" onclick="filterPosts(&#39;fa&#39;,this)">Family</button>
+      <button class="tab on" onclick="filterPosts('all',this)">All</button>
+      <button class="tab" onclick="filterPosts('m',this)">Marriage</button>
+      <button class="tab" onclick="filterPosts('me',this)">Mental health</button>
+      <button class="tab" onclick="filterPosts('fa',this)">Family</button>
     </div>
     <div class="feed" id="post-feed"></div>
   </div>
@@ -342,7 +342,7 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       </div>
       <div id="goal-group" style="display:none;" class="form-group">
         <label class="form-label">Goal amount (USD)</label>
-        <input type="number" class="goal-input" id="goal-input" placeholder="e.g. 2000">
+        <input type="number" class="goal-input" id="goal-input" placeholder="e.g. 2000" />
       </div>
       <button class="submit-btn" onclick="submitPost()">Post anonymously</button>
     </div>
@@ -371,7 +371,7 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       </div>
       <div class="setting-row">
         <div><div class="setting-label">Notifications</div><div class="setting-sub">Reply alerts</div></div>
-        <div class="toggle" id="notif-toggle" style="width:36px;height:20px;" onclick="this.classList.toggle(&#39;on&#39;)"><div class="toggle-knob" style="width:14px;height:14px;"></div></div>
+        <div class="toggle" id="notif-toggle" style="width:36px;height:20px;" onclick="this.classList.toggle('on')"><div class="toggle-knob" style="width:14px;height:14px;"></div></div>
       </div>
       <div class="setting-row">
         <div><div class="setting-label">Dark mode</div><div class="setting-sub">Always on for comfort</div></div>
@@ -386,19 +386,19 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
 
   <!-- BOTTOM NAV -->
   <nav class="bottom-nav">
-    <button class="bnav-btn on" onclick="showScreen(&#39;home&#39;,this)">
+    <button class="bnav-btn on" onclick="showScreen('home',this)">
       <span class="bnav-icon">⌂</span>
       <span class="bnav-label">Community</span>
     </button>
-    <button class="bnav-btn" onclick="showScreen(&#39;fund&#39;,this)">
+    <button class="bnav-btn" onclick="showScreen('fund',this)">
       <span class="bnav-icon">♡</span>
       <span class="bnav-label">Fund</span>
     </button>
-    <button class="bnav-btn" onclick="showScreen(&#39;compose&#39;,this)">
+    <button class="bnav-btn" onclick="showScreen('compose',this)">
       <span class="bnav-icon">✎</span>
       <span class="bnav-label">Share</span>
     </button>
-    <button class="bnav-btn" onclick="showScreen(&#39;profile&#39;,this)">
+    <button class="bnav-btn" onclick="showScreen('profile',this)">
       <span class="bnav-icon">◯</span>
       <span class="bnav-label">Profile</span>
     </button>
@@ -427,7 +427,7 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
 
 <div class="toast" id="toast"></div>
 
-<script src="./Ummah Rise — Anonymous Muslim Community_files/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 var SUPA_URL='https://nzwbgzhlffnzbadggmwz.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d2JnemhsZmZuemJhZGdnbXd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTY5OTYsImV4cCI6MjA5MTA3Mjk5Nn0.F5azP3KRBqIkfMCzwFrb-dlkv_SyUmjBhB7VrT3xK1Q';
@@ -716,6 +716,5 @@ window.addEventListener('appinstalled', function() {
   showToast('App installed! Find it on your home screen');
 });
 </script>
-
-
-</body></html>
+</body>
+</html>
