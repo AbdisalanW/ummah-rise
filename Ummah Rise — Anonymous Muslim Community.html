@@ -489,8 +489,10 @@ function renderPosts(data){
     var el=document.createElement('div');
     el.className='pcard';
     el.id='pcard-'+p.id;
-    el.innerHTML='<div class="pcard-top"><div class="pmeta"><div class="av" style="background:'+c[0]+';color:'+c[1]+';">'+ini(p.anon_name)+'</div><div class="av-info"><div class="av-name">'+p.anon_name+'</div><div class="av-time">'+timeAgo(p.created_at)+'</div></div></div><span class="tag-pill '+(TAG_CLS[p.tag]||'ptag-m')+'">'+( TAG_LBL[p.tag]||p.tag)+'</span></div><div class="ptext">'+p.content+'</div><div class="pactions"><button class="pab" id="lb-'+p.id+'" onclick="doLike(''+p.id+'',this)">'+svgHeart()+'<span id="lkn-'+p.id+'">'+p.likes+'</span></button><button class="pab" onclick="togRep(''+p.id+'')">'+svgChat()+'<span>'+reps.length+'</span></button>'+(hasFund?'<button class="support-btn" onclick="openDonate(''+p.id+'','post')">Support</button>':'')+' </div>'+(hasFund?'<div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="pf-'+p.id+'" style="width:'+pct(p.fund_raised,p.fund_goal)+'%"></div></div><div class="prog-stats"><span><span class="prog-val" id="pd-'+p.id+'">'+fmt(p.fund_raised)+'</span> raised</span><span>Goal '+fmt(p.fund_goal)+'</span></div></div>':'')+
-    '<div class="replies" id="reps-'+p.id+'">'+repHtml+'<div class="reply-compose"><input class="reply-input" id="ri-'+p.id+'" placeholder="Reply anonymously..."/><button class="reply-send" onclick="doReply(''+p.id+'')">Send</button></div></div>';
+    var pid=p.id;
+    el.setAttribute('data-pid',pid);
+    el.innerHTML='<div class="pcard-top"><div class="pmeta"><div class="av" style="background:'+c[0]+';color:'+c[1]+';">'+ini(p.anon_name)+'</div><div class="av-info"><div class="av-name">'+p.anon_name+'</div><div class="av-time">'+timeAgo(p.created_at)+'</div></div></div><span class="tag-pill '+(TAG_CLS[p.tag]||'ptag-m')+'">'+( TAG_LBL[p.tag]||p.tag)+'</span></div><div class="ptext">'+p.content+'</div><div class="pactions"><button class="pab" id="lb-'+pid+'" data-action="like" data-id="'+pid+'">'+svgHeart()+'<span id="lkn-'+pid+'">'+p.likes+'</span></button><button class="pab" data-action="reply" data-id="'+pid+'">'+svgChat()+'<span>'+reps.length+'</span></button>'+(hasFund?'<button class="support-btn" data-action="donate" data-id="'+pid+'" data-type="post">Support</button>':'')+' </div>'+(hasFund?'<div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="pf-'+pid+'" style="width:'+pct(p.fund_raised,p.fund_goal)+'%"></div></div><div class="prog-stats"><span><span class="prog-val" id="pd-'+pid+'">'+fmt(p.fund_raised)+'</span> raised</span><span>Goal '+fmt(p.fund_goal)+'</span></div></div>':'')+
+    '<div class="replies" id="reps-'+pid+'">'+repHtml+'<div class="reply-compose"><input class="reply-input" id="ri-'+pid+'" placeholder="Reply anonymously..."/><button class="reply-send" data-action="sendreply" data-id="'+pid+'">Send</button></div></div>';
     f.appendChild(el);
   });
 }
@@ -517,7 +519,8 @@ function renderFunds(data){
     var el=document.createElement('div');
     el.className='fcard';
     el.id='fcard-'+fn.id;
-    el.innerHTML='<div class="fcard-top"><div class="pmeta"><div class="av" style="background:'+c[0]+';color:'+c[1]+';">'+ini(fn.anon_name)+'</div><div class="av-info"><div class="av-name">'+fn.anon_name+'</div><div class="av-time">Anonymous campaign</div></div></div><span class="tag-pill ptag-m">Marriage</span></div><div class="fcard-text">'+fn.content+'</div><div class="prog-bar"><div class="prog-fill" id="ff-'+fn.id+'" style="width:'+p+'%"></div></div><div class="prog-stats" style="margin:.5rem 0 .9rem;"><span><span class="prog-val" id="fr-'+fn.id+'">'+fmt(fn.raised)+'</span> raised</span><span>Goal '+fmt(fn.goal)+'</span></div><div class="fcard-actions"><button class="fcard-donate" onclick="openDonate(''+fn.id+'','fund')">Donate — JazakAllah Khair</button><button class="fcard-share" onclick="showToast('Share link copied!')">Share</button></div>';
+    var fid=fn.id;
+    el.innerHTML='<div class="fcard-top"><div class="pmeta"><div class="av" style="background:'+c[0]+';color:'+c[1]+';">'+ini(fn.anon_name)+'</div><div class="av-info"><div class="av-name">'+fn.anon_name+'</div><div class="av-time">Anonymous campaign</div></div></div><span class="tag-pill ptag-m">Marriage</span></div><div class="fcard-text">'+fn.content+'</div><div class="prog-bar"><div class="prog-fill" id="ff-'+fid+'" style="width:'+p+'%"></div></div><div class="prog-stats" style="margin:.5rem 0 .9rem;"><span><span class="prog-val" id="fr-'+fid+'">'+fmt(fn.raised)+'</span> raised</span><span>Goal '+fmt(fn.goal)+'</span></div><div class="fcard-actions"><button class="fcard-donate" data-action="donate" data-id="'+fid+'" data-type="fund">Donate — JazakAllah Khair</button><button class="fcard-share" data-action="share">Share</button></div>';
     f.appendChild(el);
   });
   var tr=document.getElementById('total-raised');
@@ -648,6 +651,19 @@ function closeModal(){
   modalTarget=null;
 }
 document.getElementById('donate-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+document.addEventListener('click',function(e){
+  var btn=e.target.closest('[data-action]');
+  if(!btn)return;
+  var action=btn.getAttribute('data-action');
+  var id=btn.getAttribute('data-id');
+  var type=btn.getAttribute('data-type');
+  if(action==='like')doLike(id,btn);
+  else if(action==='reply')togRep(id);
+  else if(action==='donate')openDonate(id,type);
+  else if(action==='sendreply')doReply(id);
+  else if(action==='share')showToast('Share link copied!');
+});
 
 async function showScreen(name,btn){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
