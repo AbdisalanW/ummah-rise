@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ummah Rise — Anonymous Muslim Community</title>
+<link rel="manifest" href="manifest.json"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="Ummah Rise"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<meta name="theme-color" content="#0d0f0e"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #0d0f0e;
+  --bg2: #141714;
+  --bg3: #1a1d1a;
+  --card: #1e221e;
+  --card2: #242824;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #f0ede8;
+  --text2: #9a9e96;
+  --text3: #6a6e66;
+  --green: #4ade80;
+  --green2: #22c55e;
+  --green-dim: rgba(74,222,128,0.12);
+  --green-dim2: rgba(74,222,128,0.06);
+  --gold: #f5c842;
+  --gold-dim: rgba(245,200,66,0.12);
+  --rose: #fb7185;
+  --rose-dim: rgba(251,113,133,0.12);
+  --teal: #2dd4bf;
+  --teal-dim: rgba(45,212,191,0.12);
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-pill: 99px;
+  --serif: 'DM Serif Display', Georgia, serif;
+  --sans: 'DM Sans', system-ui, sans-serif;
+  --shadow: 0 4px 24px rgba(0,0,0,0.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{height:100%;}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:15px;line-height:1.6;min-height:100%;overflow-x:hidden;}
+
+/* ── LAYOUT ── */
+.shell{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;position:relative;}
+.screen{flex:1;display:none;flex-direction:column;padding-bottom:80px;}
+.screen.active{display:flex;}
+
+/* ── SPLASH ── */
+#splash{justify-content:center;align-items:center;text-align:center;padding:2rem;min-height:100vh;background:radial-gradient(ellipse at 50% 0%, rgba(74,222,128,0.08) 0%, transparent 60%);}
+.splash-icon{width:72px;height:72px;background:var(--green-dim);border:1px solid rgba(74,222,128,0.3);border-radius:20px;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;font-size:32px;}
+.splash h1{font-family:var(--serif);font-size:2.4rem;font-weight:400;margin-bottom:.5rem;letter-spacing:-.02em;}
+.splash h1 em{color:var(--green);font-style:normal;}
+.splash p{color:var(--text2);font-size:15px;max-width:300px;margin:0 auto 2rem;line-height:1.7;}
+.splash-pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:2.5rem;}
+.pill{font-size:12px;padding:5px 12px;border-radius:var(--radius-pill);border:1px solid var(--border2);color:var(--text2);}
+.btn-primary{background:var(--green);color:#0d1a10;font-size:15px;font-weight:600;padding:14px 32px;border:none;border-radius:var(--radius-pill);cursor:pointer;width:100%;max-width:280px;transition:opacity .2s;letter-spacing:.01em;}
+.btn-primary:hover{opacity:.88;}
+.btn-ghost{background:transparent;color:var(--text2);font-size:14px;padding:12px;border:none;cursor:pointer;margin-top:.5rem;}
+.btn-ghost:hover{color:var(--text);}
+
+/* ── TOP BAR ── */
+.topbar{padding:1rem 1.25rem .75rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);flex-shrink:0;}
+.topbar-logo{font-family:var(--serif);font-size:1.3rem;color:var(--text);}
+.topbar-logo span{color:var(--green);}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.online-badge{font-size:11px;color:var(--green);background:var(--green-dim);border:1px solid rgba(74,222,128,0.2);padding:4px 10px;border-radius:var(--radius-pill);}
+.icon-btn{background:transparent;border:none;cursor:pointer;color:var(--text2);width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .2s;}
+.icon-btn:hover{background:var(--card);}
+
+/* ── NAV TABS ── */
+.tabs{display:flex;gap:4px;padding:.75rem 1.25rem;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0;}
+.tab{flex:1;padding:8px 4px;font-size:13px;font-weight:500;border:1px solid transparent;border-radius:var(--radius-sm);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;text-align:center;}
+.tab.on{background:var(--card);color:var(--text);border-color:var(--border2);}
+.tab.on.green-tab{color:var(--green);}
+
+/* ── FEED ── */
+.feed{flex:1;overflow-y:auto;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:14px;}
+.feed::-webkit-scrollbar{width:4px;}
+.feed::-webkit-scrollbar-track{background:transparent;}
+.feed::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── POST CARD ── */
+.pcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;transition:border-color .2s;}
+.pcard:hover{border-color:var(--border2);}
+.pcard-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem;}
+.pmeta{display:flex;align-items:center;gap:10px;}
+.av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;}
+.av-info{display:flex;flex-direction:column;}
+.av-name{font-size:13px;color:var(--text2);font-weight:500;}
+.av-time{font-size:11px;color:var(--text3);}
+.tag-pill{font-size:11px;padding:3px 10px;border-radius:var(--radius-pill);font-weight:500;}
+.ptag-m{background:rgba(245,200,66,.15);color:#f5c842;border:1px solid rgba(245,200,66,.2);}
+.ptag-fa{background:rgba(45,212,191,.12);color:var(--teal);border:1px solid rgba(45,212,191,.2);}
+.ptag-fai{background:rgba(167,139,250,.12);color:#c4b5fd;border:1px solid rgba(167,139,250,.2);}
+.ptag-me{background:rgba(251,113,133,.12);color:var(--rose);border:1px solid rgba(251,113,133,.2);}
+.ptag-fi{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.2);}
+.ptext{font-size:14px;color:var(--text);line-height:1.7;margin-bottom:.9rem;}
+.pactions{display:flex;gap:8px;align-items:center;}
+.pab{font-size:12px;padding:6px 12px;border:1px solid var(--border);border-radius:var(--radius-pill);background:transparent;color:var(--text2);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;}
+.pab:hover{border-color:var(--border2);color:var(--text);}
+.pab.liked{color:var(--rose);border-color:rgba(251,113,133,.4);background:var(--rose-dim);}
+.pab.replied{color:var(--green);border-color:rgba(74,222,128,.3);background:var(--green-dim);}
+.support-btn{margin-left:auto;font-size:12px;padding:6px 14px;border-radius:var(--radius-pill);background:var(--green-dim);border:1px solid rgba(74,222,128,.3);color:var(--green);cursor:pointer;font-weight:500;transition:all .2s;}
+.support-btn:hover{background:rgba(74,222,128,.2);}
+
+/* ── PROGRESS ── */
+.prog-wrap{margin-top:.75rem;}
+.prog-bar{height:4px;background:var(--card2);border-radius:99px;overflow:hidden;margin:.6rem 0;}
+.prog-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green2),var(--green));transition:width .5s;}
+.prog-stats{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);}
+.prog-val{color:var(--green);font-weight:600;}
+
+/* ── DONATE PANEL ── */
+.dpanel{display:none;margin-top:.9rem;padding:.9rem;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);}
+.dpanel.open{display:block;}
+.dpanel-note{font-size:12px;color:var(--text2);margin-bottom:.75rem;line-height:1.5;}
+.amt-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:.75rem;}
+.amt-btn{font-size:13px;padding:6px 14px;border:1px solid var(--border2);border-radius:var(--radius-pill);background:transparent;color:var(--text2);cursor:pointer;transition:all .2s;}
+.amt-btn.sel,.amt-btn:hover{background:var(--green-dim);border-color:rgba(74,222,128,.4);color:var(--green);}
+.donate-go{width:100%;padding:10px;font-size:13px;font-weight:600;border:none;border-radius:var(--radius-sm);background:var(--green);color:#0d1a10;cursor:pointer;transition:opacity .2s;}
+.donate-go:hover{opacity:.88;}
+
+/* ── REPLIES ── */
+.replies{display:none;margin-top:.9rem;border-top:1px solid var(--border);padding-top:.9rem;}
+.replies.open{display:block;}
+.reply-item{display:flex;gap:10px;margin-bottom:.8rem;}
+.reply-av{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;}
+.reply-body{}
+.reply-name{font-size:11px;color:var(--text3);margin-bottom:2px;}
+.reply-text{font-size:13px;color:var(--text2);line-height:1.6;}
+.reply-compose{display:flex;gap:8px;margin-top:.8rem;}
+.reply-input{flex:1;padding:8px 12px;font-size:13px;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text);font-family:var(--sans);}
+.reply-input:focus{outline:none;border-color:rgba(74,222,128,.4);}
+.reply-send{padding:8px 14px;font-size:12px;font-weight:600;border:none;border-radius:var(--radius-sm);background:var(--green-dim2);border:1px solid rgba(74,222,128,.2);color:var(--green);cursor:pointer;}
+.reply-send:hover{background:var(--green-dim);}
+
+/* ── COMPOSE SCREEN ── */
+.compose-wrap{padding:1.25rem;flex:1;}
+.compose-hed{font-family:var(--serif);font-size:1.4rem;font-weight:400;margin-bottom:.4rem;}
+.compose-sub{font-size:13px;color:var(--text2);margin-bottom:1.25rem;}
+.form-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.5rem;display:block;}
+.form-group{margin-bottom:1.1rem;}
+textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:14px;color:var(--text);font-family:var(--sans);resize:none;height:130px;line-height:1.7;transition:border-color .2s;}
+textarea:focus{outline:none;border-color:rgba(74,222,128,.4);}
+textarea::placeholder{color:var(--text3);}
+.select-wrap{position:relative;}
+select{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:14px;color:var(--text);font-family:var(--sans);appearance:none;cursor:pointer;}
+select:focus{outline:none;border-color:rgba(74,222,128,.4);}
+.select-arrow{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text3);pointer-events:none;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;}
+.toggle-label{font-size:14px;color:var(--text);}
+.toggle-sub{font-size:12px;color:var(--text2);}
+.toggle{width:44px;height:24px;background:var(--card2);border-radius:99px;position:relative;transition:background .2s;border:1px solid var(--border2);}
+.toggle.on{background:var(--green);}
+.toggle-knob{position:absolute;top:2px;left:2px;width:18px;height:18px;background:white;border-radius:50%;transition:left .2s;}
+.toggle.on .toggle-knob{left:22px;}
+.goal-input{width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:14px;color:var(--text);font-family:var(--sans);}
+.goal-input:focus{outline:none;border-color:rgba(74,222,128,.4);}
+.submit-btn{width:100%;padding:14px;font-size:15px;font-weight:600;border:none;border-radius:var(--radius-sm);background:var(--green);color:#0d1a10;cursor:pointer;margin-top:.5rem;letter-spacing:.01em;}
+.submit-btn:hover{opacity:.88;}
+.anon-note{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--green-dim2);border:1px solid rgba(74,222,128,.15);border-radius:var(--radius-sm);margin-bottom:1rem;font-size:12px;color:var(--green);}
+
+/* ── FUND SCREEN ── */
+.fund-hero{padding:1.25rem;background:var(--bg3);border-bottom:1px solid var(--border);}
+.fund-hero h2{font-family:var(--serif);font-size:1.3rem;font-weight:400;margin-bottom:.3rem;}
+.fund-hero p{font-size:13px;color:var(--text2);line-height:1.6;}
+.fund-stats-row{display:flex;gap:10px;margin-top:.9rem;}
+.fstat{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.75rem;text-align:center;}
+.fstat-val{font-size:1.2rem;font-weight:600;color:var(--green);}
+.fstat-lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+.fund-feed{flex:1;overflow-y:auto;padding:1rem 1.25rem;display:flex;flex-direction:column;gap:14px;}
+
+/* ── FUND CARD ── */
+.fcard{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;}
+.fcard-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:.75rem;}
+.fcard-text{font-size:14px;color:var(--text);line-height:1.7;margin-bottom:.9rem;}
+.fcard-actions{display:flex;gap:8px;margin-top:.9rem;}
+.fcard-donate{flex:1;padding:9px;font-size:13px;font-weight:600;border:none;border-radius:var(--radius-sm);background:var(--green);color:#0d1a10;cursor:pointer;transition:opacity .2s;}
+.fcard-donate:hover{opacity:.88;}
+.fcard-share{padding:9px 14px;font-size:13px;border:1px solid var(--border2);border-radius:var(--radius-sm);background:transparent;color:var(--text2);cursor:pointer;}
+.fcard-share:hover{color:var(--text);}
+
+/* ── PROFILE SCREEN ── */
+.profile-wrap{padding:1.25rem;flex:1;}
+.profile-hero{text-align:center;padding:1.5rem 0;border-bottom:1px solid var(--border);margin-bottom:1.25rem;}
+.profile-av{width:72px;height:72px;border-radius:50%;background:var(--green-dim);border:2px solid rgba(74,222,128,.3);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;color:var(--green);margin:0 auto 1rem;}
+.profile-name{font-size:1.1rem;font-weight:500;margin-bottom:.25rem;}
+.profile-sub{font-size:13px;color:var(--text2);}
+.profile-stats{display:flex;gap:10px;margin-bottom:1.25rem;}
+.pstat{flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.9rem;text-align:center;}
+.pstat-val{font-size:1.2rem;font-weight:600;color:var(--text);}
+.pstat-lbl{font-size:11px;color:var(--text3);margin-top:2px;}
+.section-title{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem;}
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);}
+.setting-label{font-size:14px;color:var(--text);}
+.setting-sub{font-size:12px;color:var(--text3);}
+.setting-val{font-size:13px;color:var(--text2);}
+.setting-chevron{color:var(--text3);font-size:18px;}
+
+/* ── BOTTOM NAV ── */
+.bottom-nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--bg2);border-top:1px solid var(--border);display:flex;padding:.6rem .75rem calc(.6rem + env(safe-area-inset-bottom));gap:4px;z-index:100;}
+.bnav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 4px;border:none;background:transparent;cursor:pointer;color:var(--text3);border-radius:var(--radius-sm);transition:all .2s;}
+.bnav-btn.on{color:var(--green);}
+.bnav-btn:hover{background:var(--card);color:var(--text2);}
+.bnav-btn.on:hover{color:var(--green);}
+.bnav-icon{font-size:20px;line-height:1;}
+.bnav-label{font-size:10px;font-weight:500;letter-spacing:.02em;}
+
+/* ── MODALS ── */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius) var(--radius) 0 0;width:100%;max-width:480px;padding:1.5rem 1.25rem;animation:slideUp .3s ease;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.modal-handle{width:36px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto .75rem;}
+.modal h3{font-family:var(--serif);font-size:1.2rem;font-weight:400;margin-bottom:.4rem;}
+.modal p{font-size:13px;color:var(--text2);margin-bottom:1rem;line-height:1.6;}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--border2);border-radius:var(--radius-pill);padding:10px 20px;font-size:13px;color:var(--text);opacity:0;pointer-events:none;transition:opacity .25s;white-space:nowrap;z-index:300;box-shadow:var(--shadow);}
+.toast.show{opacity:1;}
+
+/* ── EMPTY STATE ── */
+.empty{text-align:center;padding:3rem 1.5rem;color:var(--text3);}
+.empty-icon{font-size:2.5rem;margin-bottom:.75rem;}
+.empty p{font-size:14px;line-height:1.6;}
+
+/* ── ONBOARDING STYLE ── */
+#splash{background:var(--bg);}
+</style>
+</head>
+<body>
+
+<!-- SPLASH / ONBOARDING -->
+<div class="shell">
+
+<!-- INSTALL BANNER (Android) -->
+<div id="install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;background:#1e221e;border-top:1px solid rgba(74,222,128,0.3);padding:12px 16px;z-index:999;align-items:center;justify-content:space-between;gap:12px;max-width:480px;margin:0 auto;">
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="width:36px;height:36px;background:#0d0f0e;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:18px;">☽</div>
+    <div>
+      <div style="font-size:13px;font-weight:500;color:#f0ede8;">Add to Home Screen</div>
+      <div style="font-size:11px;color:#9a9e96;">Install the app — works offline</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button onclick="document.getElementById('install-banner').style.display='none'" style="padding:7px 12px;font-size:12px;border:1px solid rgba(255,255,255,0.1);border-radius:99px;background:transparent;color:#9a9e96;cursor:pointer;">Later</button>
+    <button onclick="installApp()" style="padding:7px 14px;font-size:12px;font-weight:600;border:none;border-radius:99px;background:#4ade80;color:#0d1a10;cursor:pointer;">Install</button>
+  </div>
+</div>
+<div id="splash" class="screen active" style="display:flex;">
+  <div>
+    <div class="splash-icon">☽</div>
+    <h1>Ummah <em>Rise</em></h1>
+    <p>A safe, anonymous space for young Muslims to share, seek advice, and support each other — including helping one another afford marriage.</p>
+    <div class="splash-pills">
+      <span class="pill">100% anonymous</span>
+      <span class="pill">No judgment</span>
+      <span class="pill">Community support</span>
+      <span class="pill">Marriage Fund</span>
+    </div>
+    <button class="btn-primary" onclick="enterApp()">Enter the community</button><br/>
+    <button class="btn-ghost" onclick="enterApp()">Browse as guest</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="main-app" style="display:none;flex-direction:column;flex:1;">
+
+  <!-- COMMUNITY SCREEN -->
+  <div id="screen-home" class="screen active">
+    <div class="topbar">
+      <div class="topbar-logo">Ummah <span>Rise</span></div>
+      <div class="topbar-right">
+        <div class="online-badge">● 847 online</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab on" onclick="filterPosts('all',this)">All</button>
+      <button class="tab" onclick="filterPosts('m',this)">Marriage</button>
+      <button class="tab" onclick="filterPosts('me',this)">Mental health</button>
+      <button class="tab" onclick="filterPosts('fa',this)">Family</button>
+    </div>
+    <div class="feed" id="post-feed"></div>
+  </div>
+
+  <!-- FUND SCREEN -->
+  <div id="screen-fund" class="screen">
+    <div class="topbar">
+      <div class="topbar-logo">Marriage <span>Fund</span></div>
+    </div>
+    <div class="fund-hero">
+      <h2>Help someone say "I do"</h2>
+      <p>Young Muslims share their marriage goals anonymously. Donate to help cover mahr, walima costs, or moving expenses. Every dollar goes directly to them.</p>
+      <div class="fund-stats-row">
+        <div class="fstat"><div class="fstat-val" id="total-raised">$1,505</div><div class="fstat-lbl">raised this month</div></div>
+        <div class="fstat"><div class="fstat-val">23</div><div class="fstat-lbl">couples helped</div></div>
+        <div class="fstat"><div class="fstat-val">100%</div><div class="fstat-lbl">to recipient</div></div>
+      </div>
+    </div>
+    <div class="fund-feed" id="fund-feed"></div>
+  </div>
+
+  <!-- COMPOSE SCREEN -->
+  <div id="screen-compose" class="screen">
+    <div class="topbar">
+      <div class="topbar-logo">Share <span>anonymously</span></div>
+    </div>
+    <div class="compose-wrap">
+      <div class="anon-note">
+        <span>🔒</span> Your identity is never stored or revealed
+      </div>
+      <div class="form-group">
+        <label class="form-label">What's on your heart?</label>
+        <textarea id="compose-text" placeholder="Share freely — no one knows who you are. Marriage pressure, faith doubts, family struggles, mental health, anything..."></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Topic</label>
+        <div class="select-wrap">
+          <select id="compose-tag">
+            <option value="m">Marriage</option>
+            <option value="fa">Family</option>
+            <option value="fai">Faith</option>
+            <option value="me">Mental health</option>
+            <option value="fi">Finance</option>
+          </select>
+          <span class="select-arrow">▾</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="toggle-row" onclick="toggleFund()">
+          <div>
+            <div class="toggle-label">Attach a Marriage Fund goal</div>
+            <div class="toggle-sub">Let the community donate toward your goal</div>
+          </div>
+          <div class="toggle" id="fund-toggle"><div class="toggle-knob"></div></div>
+        </div>
+      </div>
+      <div id="goal-group" style="display:none;" class="form-group">
+        <label class="form-label">Goal amount (USD)</label>
+        <input type="number" class="goal-input" id="goal-input" placeholder="e.g. 2000" />
+      </div>
+      <button class="submit-btn" onclick="submitPost()">Post anonymously</button>
+    </div>
+  </div>
+
+  <!-- PROFILE SCREEN -->
+  <div id="screen-profile" class="screen">
+    <div class="topbar">
+      <div class="topbar-logo">My <span>Profile</span></div>
+    </div>
+    <div class="profile-wrap">
+      <div class="profile-hero">
+        <div class="profile-av" id="profile-av">?</div>
+        <div class="profile-name" id="profile-name">Anonymous Member</div>
+        <div class="profile-sub">Member since today · Minneapolis, MN</div>
+      </div>
+      <div class="profile-stats">
+        <div class="pstat"><div class="pstat-val" id="stat-posts">0</div><div class="pstat-lbl">Posts</div></div>
+        <div class="pstat"><div class="pstat-val" id="stat-replies">0</div><div class="pstat-lbl">Replies</div></div>
+        <div class="pstat"><div class="pstat-val" id="stat-donated">$0</div><div class="pstat-lbl">Donated</div></div>
+      </div>
+      <div class="section-title">Settings</div>
+      <div class="setting-row">
+        <div><div class="setting-label">Anonymous name</div><div class="setting-sub">How you appear to others</div></div>
+        <div class="setting-val" id="anon-name-display">Anon member</div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Notifications</div><div class="setting-sub">Reply alerts</div></div>
+        <div class="toggle" id="notif-toggle" style="width:36px;height:20px;" onclick="this.classList.toggle('on')"><div class="toggle-knob" style="width:14px;height:14px;"></div></div>
+      </div>
+      <div class="setting-row">
+        <div><div class="setting-label">Dark mode</div><div class="setting-sub">Always on for comfort</div></div>
+        <span class="setting-val">On</span>
+      </div>
+      <div class="setting-row" style="border:none;">
+        <div><div class="setting-label">Privacy policy</div><div class="setting-sub">How we protect your anonymity</div></div>
+        <span class="setting-chevron">›</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="bnav-btn on" onclick="showScreen('home',this)">
+      <span class="bnav-icon">⌂</span>
+      <span class="bnav-label">Community</span>
+    </button>
+    <button class="bnav-btn" onclick="showScreen('fund',this)">
+      <span class="bnav-icon">♡</span>
+      <span class="bnav-label">Fund</span>
+    </button>
+    <button class="bnav-btn" onclick="showScreen('compose',this)">
+      <span class="bnav-icon">✎</span>
+      <span class="bnav-label">Share</span>
+    </button>
+    <button class="bnav-btn" onclick="showScreen('profile',this)">
+      <span class="bnav-icon">◯</span>
+      <span class="bnav-label">Profile</span>
+    </button>
+  </nav>
+
+</div><!-- end main-app -->
+</div><!-- end shell -->
+
+<!-- DONATE MODAL -->
+<div class="modal-bg" id="donate-modal">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3>Support <span id="modal-name"></span></h3>
+    <p id="modal-desc"></p>
+    <div class="amt-row" id="modal-amts">
+      <button class="amt-btn" onclick="pickAmt(5,this)">$5</button>
+      <button class="amt-btn" onclick="pickAmt(10,this)">$10</button>
+      <button class="amt-btn sel" onclick="pickAmt(25,this)">$25</button>
+      <button class="amt-btn" onclick="pickAmt(50,this)">$50</button>
+      <button class="amt-btn" onclick="pickAmt(100,this)">$100</button>
+    </div>
+    <button class="donate-go" onclick="confirmDonate()">Send $<span id="modal-amt">25</span> anonymously — JazakAllah Khair</button>
+    <button class="btn-ghost" style="width:100%;margin-top:.5rem;" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var ACS=[['#2d3a2d','#4ade80'],['#3a2d35','#fb7185'],['#2d353a','#2dd4bf'],['#3a362d','#f5c842'],['#352d3a','#c4b5fd'],['#2d3a38','#34d399']];
+var TAG_CLS={m:'ptag-m',fa:'ptag-fa',fai:'ptag-fai',me:'ptag-me',fi:'ptag-fi'};
+var TAG_LBL={m:'Marriage',fa:'Family',fai:'Faith',me:'Mental health',fi:'Finance'};
+var NAMES=['Sister R','Brother T','Anon sister','Brother Y','Sister H','Anon brother','Brother K','Sister F'];
+
+var userStats={posts:0,replies:0,donated:0};
+var fundToggleOn=false;
+var modalTarget=null;
+var modalAmt=25;
+var filterTag='all';
+
+var posts=[
+  {id:1,nm:'Sister R',tag:'m',txt:"My parents keep rejecting every proposal without giving a real reason. I'm 26, I want to get married but I feel completely stuck and it's starting to affect my mental health. Does anyone else deal with this?",lk:34,tm:'2h ago',ci:0,reps:[{n:'Brother A',ci:2,t:"This is so painful. Have you tried involving an imam or a trusted uncle as a mediator? It can shift the dynamic."},{n:'Sister F',ci:5,t:"My family did the same thing for years. Eventually I had to have a very direct conversation. It got better. Praying for you."}],donated:0,goal:0,liked:false,repOpen:false},
+  {id:2,nm:'Brother T',tag:'fi',txt:"I can't afford the mahr my future in-laws are asking for. It's not outrageous but I'm a student with no savings. I feel like a failure and I don't know who to talk to about this.",lk:51,tm:'4h ago',ci:1,reps:[{n:'Anon sister',ci:3,t:"Islamically mahr can be very simple — even a ring or a Quran. The in-laws' amount is cultural expectation, not a religious requirement. Talk to an imam."},{n:'Brother K',ci:4,t:"I donated a small amount to your fund. May Allah grant you ease and barakah in your marriage."}],donated:420,goal:2000,liked:false,repOpen:false},
+  {id:3,nm:'Anon sister',tag:'me',txt:"Does anyone else feel like they can't talk about depression and anxiety in our community because someone will say 'just make more dua'? I believe in dua. But I also need real human support and I feel completely alone.",lk:89,tm:'6h ago',ci:2,reps:[{n:'Sister M',ci:0,t:"You are NOT alone in this. Seeking therapy is not weakness — it is taking care of the amanah of your mind that Allah gave you."},{n:'Anon brother',ci:3,t:"I went through the exact same thing. Found a Muslim therapist and it changed my life. There are directories online specifically for Muslim counselors."}],donated:0,goal:0,liked:false,repOpen:false},
+  {id:4,nm:'Brother Y',tag:'fa',txt:"My non-Muslim family keeps pressuring me to come to events where there's alcohol everywhere. I love them deeply but it puts me in such a hard position. How do you all navigate this?",lk:22,tm:'1d ago',ci:4,reps:[{n:'Sister R',ci:1,t:"You can attend and stay away from what's haram. Your presence and love still matters to them even if you don't drink. Being there without compromising is possible."}],donated:0,goal:0,liked:false,repOpen:false},
+  {id:5,nm:'Sister H',tag:'fai',txt:"Going through a period of really low iman and I feel so ashamed of it. Like I should be stronger. How do people get through the ups and downs of faith without judging themselves so harshly?",lk:67,tm:'2d ago',ci:5,reps:[{n:'Anon brother',ci:2,t:"Iman naturally rises and falls — even the sahaba experienced this. The fact that you're aware of it and care is itself a sign of your faith."},{n:'Brother T',ci:1,t:"You're not alone. Reading the lives of the prophets in their hardest moments helped me a lot. They were human too."}],donated:0,goal:0,liked:false,repOpen:false},
+];
+
+var funds=[
+  {id:10,nm:'Brother T',goal:2000,raised:420,txt:"I'm a student working part-time trying to get married. I've saved what I can but need help with the mahr and first month's rent on a small apartment. Any amount is a huge blessing.",ci:1},
+  {id:11,nm:'Sister H',goal:1500,raised:875,txt:"Alhamdulillah I found my match after years of searching. But our walima costs are beyond what our families can afford. Trying to have a modest, halal celebration without going into debt.",ci:5},
+  {id:12,nm:'Anon brother',goal:3000,raised:210,txt:"Working two jobs and saving for two years to get married. An unexpected family emergency wiped out my savings. I'm not giving up — asking the ummah for help to get back on track.",ci:4},
+];
+
+function ac(i){return ACS[i%ACS.length];}
+function ini(n){return n.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
+function pct(r,g){return g>0?Math.min(100,Math.round((r/g)*100)):0;}
+function fmt(n){return n>=1000?'$'+(n/1000).toFixed(1)+'k':'$'+n;}
+
+function buildPosts(){
+  var f=document.getElementById('post-feed');
+  var filtered=filterTag==='all'?posts:posts.filter(function(p){return p.tag===filterTag;});
+  if(filtered.length===0){f.innerHTML='<div class="empty"><div class="empty-icon">🌙</div><p>No posts in this category yet. Be the first to share.</p></div>';return;}
+  f.innerHTML='';
+  filtered.forEach(function(p){
+    var c=ac(p.ci);
+    var hasFund=p.goal>0;
+    var el=document.createElement('div');
+    el.className='pcard';
+    el.id='pcard-'+p.id;
+    var repHtml=p.reps.map(function(r){
+      var rc=ac(r.ci);
+      return '<div class="reply-item"><div class="reply-av" style="background:'+rc[0]+';color:'+rc[1]+';">'+ini(r.n)+'</div><div class="reply-body"><div class="reply-name">'+r.n+'</div><div class="reply-text">'+r.t+'</div></div></div>';
+    }).join('');
+    el.innerHTML='<div class="pcard-top"><div class="pmeta"><div class="av" style="background:'+c[0]+';color:'+c[1]+';">'+ini(p.nm)+'</div><div class="av-info"><div class="av-name">'+p.nm+'</div><div class="av-time">'+p.tm+'</div></div></div><span class="tag-pill '+TAG_CLS[p.tag]+'">'+TAG_LBL[p.tag]+'</span></div><div class="ptext">'+p.txt+'</div><div class="pactions"><button class="pab'+(p.liked?' liked':'')+('" id="lb-'+p.id+'" onclick="doLike('+p.id+')">')+svgHeart()+'<span id="lkn-'+p.id+'">'+p.lk+'</span></button><button class="pab'+(p.repOpen?' replied':'')+'" onclick="togRep('+p.id+')">' +svgChat()+'<span id="rcn-'+p.id+'">'+p.reps.length+'</span></button>'+(hasFund?'<button class="support-btn" onclick="openDonate('+p.id+',\'post\')">Support</button>':'')+' </div>'+(hasFund?'<div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="pf-'+p.id+'" style="width:'+pct(p.donated,p.goal)+'%"></div></div><div class="prog-stats"><span><span class="prog-val" id="pd-'+p.id+'">'+fmt(p.donated)+'</span> raised</span><span>Goal '+fmt(p.goal)+'</span></div></div>':'')+
+    '<div class="replies'+(p.repOpen?' open':'')+'" id="reps-'+p.id+'">'+repHtml+'<div class="reply-compose"><input class="reply-input" id="ri-'+p.id+'" placeholder="Reply anonymously..."/><button class="reply-send" onclick="doReply('+p.id+')">Send</button></div></div>';
+    f.appendChild(el);
+  });
+}
+
+function svgHeart(){return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';}
+function svgChat(){return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';}
+
+function buildFunds(){
+  var f=document.getElementById('fund-feed');
+  f.innerHTML='';
+  funds.forEach(function(fn){
+    var c=ac(fn.ci);
+    var p=pct(fn.raised,fn.goal);
+    var el=document.createElement('div');
+    el.className='fcard';
+    el.id='fcard-'+fn.id;
+    el.innerHTML='<div class="fcard-top"><div class="pmeta"><div class="av" style="background:'+c[0]+';color:'+c[1]+';">'+ini(fn.nm)+'</div><div class="av-info"><div class="av-name">'+fn.nm+'</div><div class="av-time">Anonymous campaign</div></div></div><span class="tag-pill ptag-m">Marriage</span></div><div class="fcard-text">'+fn.txt+'</div><div class="prog-bar"><div class="prog-fill" id="ff-'+fn.id+'" style="width:'+p+'%"></div></div><div class="prog-stats" style="margin:.5rem 0 .9rem;"><span><span class="prog-val" id="fr-'+fn.id+'">'+fmt(fn.raised)+'</span> raised</span><span>Goal '+fmt(fn.goal)+'</span></div><div class="fcard-actions"><button class="fcard-donate" onclick="openDonate('+fn.id+',\'fund\')">Donate — JazakAllah Khair</button><button class="fcard-share" onclick="showToast(\'Share link copied!\')">Share</button></div>';
+    f.appendChild(el);
+  });
+  updateTotalRaised();
+}
+
+function updateTotalRaised(){
+  var total=funds.reduce(function(s,f){return s+f.raised;},0);
+  document.getElementById('total-raised').textContent=fmt(total);
+}
+
+function filterPosts(tag,btn){
+  filterTag=tag;
+  document.querySelectorAll('.tabs .tab').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  buildPosts();
+}
+
+function doLike(id){
+  var p=posts.find(function(x){return x.id===id;});
+  if(!p)return;
+  p.liked=!p.liked;
+  p.lk+=p.liked?1:-1;
+  var btn=document.getElementById('lb-'+id);
+  var span=document.getElementById('lkn-'+id);
+  if(btn)btn.className='pab'+(p.liked?' liked':'');
+  if(span)span.textContent=p.lk;
+}
+
+function togRep(id){
+  var p=posts.find(function(x){return x.id===id;});
+  if(!p)return;
+  p.repOpen=!p.repOpen;
+  var el=document.getElementById('reps-'+id);
+  if(el)el.classList.toggle('open',p.repOpen);
+  var btn=document.getElementById('lb-'+id);
+}
+
+function doReply(id){
+  var inp=document.getElementById('ri-'+id);
+  if(!inp||!inp.value.trim())return;
+  var p=posts.find(function(x){return x.id===id;});
+  if(!p)return;
+  p.reps.push({n:'You (anon)',ci:3,t:inp.value.trim()});
+  p.repOpen=true;
+  userStats.replies++;
+  document.getElementById('stat-replies').textContent=userStats.replies;
+  inp.value='';
+  buildPosts();
+  showToast('Reply posted anonymously');
+}
+
+function toggleFund(){
+  fundToggleOn=!fundToggleOn;
+  document.getElementById('fund-toggle').classList.toggle('on',fundToggleOn);
+  document.getElementById('goal-group').style.display=fundToggleOn?'block':'none';
+}
+
+function submitPost(){
+  var txt=document.getElementById('compose-text').value.trim();
+  if(!txt){showToast('Write something first');return;}
+  var tag=document.getElementById('compose-tag').value;
+  var goal=fundToggleOn?(parseInt(document.getElementById('goal-input').value)||0):0;
+  var adjectives=['Thoughtful','Brave','Hopeful','Sincere'];
+  var nouns=['member','soul','voice','heart'];
+  var anonNm='A '+adjectives[Math.floor(Math.random()*adjectives.length)]+' '+nouns[Math.floor(Math.random()*nouns.length)];
+  posts.unshift({id:Date.now(),nm:anonNm,tag:tag,txt:txt,lk:0,tm:'Just now',ci:3,reps:[],donated:0,goal:goal,liked:false,repOpen:false});
+  if(goal>0){funds.unshift({id:Date.now()+1,nm:anonNm,goal:goal,raised:0,txt:txt,ci:3});}
+  document.getElementById('compose-text').value='';
+  document.getElementById('goal-input').value='';
+  fundToggleOn=false;
+  document.getElementById('fund-toggle').classList.remove('on');
+  document.getElementById('goal-group').style.display='none';
+  userStats.posts++;
+  document.getElementById('stat-posts').textContent=userStats.posts;
+  showScreen('home',document.querySelectorAll('.bnav-btn')[0]);
+  buildPosts();
+  buildFunds();
+  showToast('Posted anonymously — JazakAllah Khair');
+}
+
+function openDonate(id,type){
+  modalTarget={id:id,type:type};
+  modalAmt=25;
+  document.querySelectorAll('#modal-amts .amt-btn').forEach(function(b){b.classList.remove('sel');});
+  document.querySelectorAll('#modal-amts .amt-btn')[2].classList.add('sel');
+  document.getElementById('modal-amt').textContent=25;
+  if(type==='fund'){
+    var fn=funds.find(function(x){return x.id===id;});
+    document.getElementById('modal-name').textContent=fn?fn.nm:'this person';
+    document.getElementById('modal-desc').textContent=fn?fn.txt:'';
+  } else {
+    var p=posts.find(function(x){return x.id===id;});
+    document.getElementById('modal-name').textContent=p?p.nm:'this person';
+    document.getElementById('modal-desc').textContent="Your donation goes directly to this person, anonymously.";
+  }
+  document.getElementById('donate-modal').classList.add('open');
+}
+
+function pickAmt(amt,btn){
+  modalAmt=amt;
+  document.querySelectorAll('#modal-amts .amt-btn').forEach(function(b){b.classList.remove('sel');});
+  btn.classList.add('sel');
+  document.getElementById('modal-amt').textContent=amt;
+}
+
+function confirmDonate(){
+  if(!modalTarget)return;
+  if(modalTarget.type==='fund'){
+    var fn=funds.find(function(x){return x.id===modalTarget.id;});
+    if(fn){fn.raised=Math.min(fn.goal,fn.raised+modalAmt);}
+    buildFunds();
+  } else {
+    var p=posts.find(function(x){return x.id===modalTarget.id;});
+    if(p&&p.goal>0){p.donated=Math.min(p.goal,p.donated+modalAmt);}
+    buildPosts();
+  }
+  userStats.donated+=modalAmt;
+  document.getElementById('stat-donated').textContent='$'+userStats.donated;
+  closeModal();
+  showToast('JazakAllah Khair! $'+modalAmt+' sent anonymously');
+}
+
+function closeModal(){
+  document.getElementById('donate-modal').classList.remove('open');
+  modalTarget=null;
+}
+document.getElementById('donate-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+function showScreen(name,btn){
+  document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.bnav-btn').forEach(function(b){b.classList.remove('on');});
+  if(btn)btn.classList.add('on');
+  if(name==='home')buildPosts();
+  if(name==='fund')buildFunds();
+}
+
+function showToast(msg){
+  var t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(function(){t.classList.remove('show');},3000);
+}
+
+function enterApp(){
+  document.getElementById('splash').style.display='none';
+  var main=document.getElementById('main-app');
+  main.style.display='flex';
+  main.style.flexDirection='column';
+  main.style.flex='1';
+  buildPosts();
+  buildFunds();
+  var adjectives=['Hopeful','Sincere','Thoughtful','Brave'];
+  var nouns=['soul','voice','heart','member'];
+  var anonNm='Anon '+adjectives[Math.floor(Math.random()*adjectives.length)];
+  document.getElementById('profile-name').textContent=anonNm;
+  document.getElementById('profile-av').textContent=anonNm[0].toUpperCase();
+  document.getElementById('anon-name-display').textContent=anonNm;
+}
+</script>
+<script>
+if('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').then(function(reg) {
+      console.log('SW registered');
+    }).catch(function(err) {
+      console.log('SW error', err);
+    });
+  });
+}
+
+var deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  var banner = document.getElementById('install-banner');
+  if(banner) banner.style.display = 'flex';
+});
+
+function installApp() {
+  if(deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(result) {
+      deferredPrompt = null;
+      var banner = document.getElementById('install-banner');
+      if(banner) banner.style.display = 'none';
+    });
+  }
+}
+
+window.addEventListener('appinstalled', function() {
+  showToast('App installed! Find it on your home screen');
+});
+</script>
+</body>
+</html>
