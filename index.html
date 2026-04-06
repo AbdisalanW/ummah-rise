@@ -427,7 +427,11 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
 
 <div class="toast" id="toast"></div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+var SUPA_URL='https://nzwbgzhlffnzbadggmwz.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im56d2JnemhsZmZuemJhZGdnbXd6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0OTY5OTYsImV4cCI6MjA5MTA3Mjk5Nn0.F5azP3KRBqIkfMCzwFrb-dlkv_SyUmjBhB7VrT3xK1Q';
+var db=supabase.createClient(SUPA_URL,SUPA_KEY);
 var ACS=[['#2d3a2d','#4ade80'],['#3a2d35','#fb7185'],['#2d353a','#2dd4bf'],['#3a362d','#f5c842'],['#352d3a','#c4b5fd'],['#2d3a38','#34d399']];
 var TAG_CLS={m:'ptag-m',fa:'ptag-fa',fai:'ptag-fai',me:'ptag-me',fi:'ptag-fi'};
 var TAG_LBL={m:'Marriage',fa:'Family',fai:'Faith',me:'Mental health',fi:'Finance'};
@@ -438,109 +442,124 @@ var fundToggleOn=false;
 var modalTarget=null;
 var modalAmt=25;
 var filterTag='all';
-
-var posts=[
-  {id:1,nm:'Sister R',tag:'m',txt:"My parents keep rejecting every proposal without giving a real reason. I'm 26, I want to get married but I feel completely stuck and it's starting to affect my mental health. Does anyone else deal with this?",lk:34,tm:'2h ago',ci:0,reps:[{n:'Brother A',ci:2,t:"This is so painful. Have you tried involving an imam or a trusted uncle as a mediator? It can shift the dynamic."},{n:'Sister F',ci:5,t:"My family did the same thing for years. Eventually I had to have a very direct conversation. It got better. Praying for you."}],donated:0,goal:0,liked:false,repOpen:false},
-  {id:2,nm:'Brother T',tag:'fi',txt:"I can't afford the mahr my future in-laws are asking for. It's not outrageous but I'm a student with no savings. I feel like a failure and I don't know who to talk to about this.",lk:51,tm:'4h ago',ci:1,reps:[{n:'Anon sister',ci:3,t:"Islamically mahr can be very simple — even a ring or a Quran. The in-laws' amount is cultural expectation, not a religious requirement. Talk to an imam."},{n:'Brother K',ci:4,t:"I donated a small amount to your fund. May Allah grant you ease and barakah in your marriage."}],donated:420,goal:2000,liked:false,repOpen:false},
-  {id:3,nm:'Anon sister',tag:'me',txt:"Does anyone else feel like they can't talk about depression and anxiety in our community because someone will say 'just make more dua'? I believe in dua. But I also need real human support and I feel completely alone.",lk:89,tm:'6h ago',ci:2,reps:[{n:'Sister M',ci:0,t:"You are NOT alone in this. Seeking therapy is not weakness — it is taking care of the amanah of your mind that Allah gave you."},{n:'Anon brother',ci:3,t:"I went through the exact same thing. Found a Muslim therapist and it changed my life. There are directories online specifically for Muslim counselors."}],donated:0,goal:0,liked:false,repOpen:false},
-  {id:4,nm:'Brother Y',tag:'fa',txt:"My non-Muslim family keeps pressuring me to come to events where there's alcohol everywhere. I love them deeply but it puts me in such a hard position. How do you all navigate this?",lk:22,tm:'1d ago',ci:4,reps:[{n:'Sister R',ci:1,t:"You can attend and stay away from what's haram. Your presence and love still matters to them even if you don't drink. Being there without compromising is possible."}],donated:0,goal:0,liked:false,repOpen:false},
-  {id:5,nm:'Sister H',tag:'fai',txt:"Going through a period of really low iman and I feel so ashamed of it. Like I should be stronger. How do people get through the ups and downs of faith without judging themselves so harshly?",lk:67,tm:'2d ago',ci:5,reps:[{n:'Anon brother',ci:2,t:"Iman naturally rises and falls — even the sahaba experienced this. The fact that you're aware of it and care is itself a sign of your faith."},{n:'Brother T',ci:1,t:"You're not alone. Reading the lives of the prophets in their hardest moments helped me a lot. They were human too."}],donated:0,goal:0,liked:false,repOpen:false},
-];
-
-var funds=[
-  {id:10,nm:'Brother T',goal:2000,raised:420,txt:"I'm a student working part-time trying to get married. I've saved what I can but need help with the mahr and first month's rent on a small apartment. Any amount is a huge blessing.",ci:1},
-  {id:11,nm:'Sister H',goal:1500,raised:875,txt:"Alhamdulillah I found my match after years of searching. But our walima costs are beyond what our families can afford. Trying to have a modest, halal celebration without going into debt.",ci:5},
-  {id:12,nm:'Anon brother',goal:3000,raised:210,txt:"Working two jobs and saving for two years to get married. An unexpected family emergency wiped out my savings. I'm not giving up — asking the ummah for help to get back on track.",ci:4},
-];
+var postsCache=[];
+var fundsCache=[];
 
 function ac(i){return ACS[i%ACS.length];}
 function ini(n){return n.split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase();}
 function pct(r,g){return g>0?Math.min(100,Math.round((r/g)*100)):0;}
 function fmt(n){return n>=1000?'$'+(n/1000).toFixed(1)+'k':'$'+n;}
-
-function buildPosts(){
-  var f=document.getElementById('post-feed');
-  var filtered=filterTag==='all'?posts:posts.filter(function(p){return p.tag===filterTag;});
-  if(filtered.length===0){f.innerHTML='<div class="empty"><div class="empty-icon">🌙</div><p>No posts in this category yet. Be the first to share.</p></div>';return;}
-  f.innerHTML='';
-  filtered.forEach(function(p){
-    var c=ac(p.ci);
-    var hasFund=p.goal>0;
-    var el=document.createElement('div');
-    el.className='pcard';
-    el.id='pcard-'+p.id;
-    var repHtml=p.reps.map(function(r){
-      var rc=ac(r.ci);
-      return '<div class="reply-item"><div class="reply-av" style="background:'+rc[0]+';color:'+rc[1]+';">'+ini(r.n)+'</div><div class="reply-body"><div class="reply-name">'+r.n+'</div><div class="reply-text">'+r.t+'</div></div></div>';
-    }).join('');
-    el.innerHTML='<div class="pcard-top"><div class="pmeta"><div class="av" style="background:'+c[0]+';color:'+c[1]+';">'+ini(p.nm)+'</div><div class="av-info"><div class="av-name">'+p.nm+'</div><div class="av-time">'+p.tm+'</div></div></div><span class="tag-pill '+TAG_CLS[p.tag]+'">'+TAG_LBL[p.tag]+'</span></div><div class="ptext">'+p.txt+'</div><div class="pactions"><button class="pab'+(p.liked?' liked':'')+('" id="lb-'+p.id+'" onclick="doLike('+p.id+')">')+svgHeart()+'<span id="lkn-'+p.id+'">'+p.lk+'</span></button><button class="pab'+(p.repOpen?' replied':'')+'" onclick="togRep('+p.id+')">' +svgChat()+'<span id="rcn-'+p.id+'">'+p.reps.length+'</span></button>'+(hasFund?'<button class="support-btn" onclick="openDonate('+p.id+',\'post\')">Support</button>':'')+' </div>'+(hasFund?'<div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="pf-'+p.id+'" style="width:'+pct(p.donated,p.goal)+'%"></div></div><div class="prog-stats"><span><span class="prog-val" id="pd-'+p.id+'">'+fmt(p.donated)+'</span> raised</span><span>Goal '+fmt(p.goal)+'</span></div></div>':'')+
-    '<div class="replies'+(p.repOpen?' open':'')+'" id="reps-'+p.id+'">'+repHtml+'<div class="reply-compose"><input class="reply-input" id="ri-'+p.id+'" placeholder="Reply anonymously..."/><button class="reply-send" onclick="doReply('+p.id+')">Send</button></div></div>';
-    f.appendChild(el);
-  });
+function timeAgo(ts){
+  var d=new Date(ts);var now=new Date();var s=Math.floor((now-d)/1000);
+  if(s<60)return 'Just now';if(s<3600)return Math.floor(s/60)+'m ago';
+  if(s<86400)return Math.floor(s/3600)+'h ago';return Math.floor(s/86400)+'d ago';
 }
 
 function svgHeart(){return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';}
 function svgChat(){return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';}
 
-function buildFunds(){
-  var f=document.getElementById('fund-feed');
+function showLoading(feedId){
+  var f=document.getElementById(feedId);
+  if(f)f.innerHTML='<div class="empty"><div class="empty-icon">🌙</div><p>Loading...</p></div>';
+}
+
+async function loadPosts(){
+  showLoading('post-feed');
+  var query=db.from('posts').select('*, replies(*)').order('created_at',{ascending:false});
+  if(filterTag!=='all') query=query.eq('tag',filterTag);
+  var res=await query;
+  if(res.error){showToast('Could not load posts');return;}
+  postsCache=res.data||[];
+  renderPosts(postsCache);
+}
+
+function renderPosts(data){
+  var f=document.getElementById('post-feed');
+  if(!data||data.length===0){f.innerHTML='<div class="empty"><div class="empty-icon">🌙</div><p>No posts yet. Be the first to share.</p></div>';return;}
   f.innerHTML='';
-  funds.forEach(function(fn){
-    var c=ac(fn.ci);
+  data.forEach(function(p){
+    var ci=Math.abs(p.id.charCodeAt(0))%6;
+    var c=ac(ci);
+    var hasFund=p.has_fund&&p.fund_goal>0;
+    var reps=p.replies||[];
+    var repHtml=reps.map(function(r){
+      var rc=ac(Math.abs(r.id.charCodeAt(0))%6);
+      return '<div class="reply-item"><div class="reply-av" style="background:'+rc[0]+';color:'+rc[1]+';">'+ini(r.anon_name)+'</div><div class="reply-body"><div class="reply-name">'+r.anon_name+'</div><div class="reply-text">'+r.content+'</div></div></div>';
+    }).join('');
+    var el=document.createElement('div');
+    el.className='pcard';
+    el.id='pcard-'+p.id;
+    el.innerHTML='<div class="pcard-top"><div class="pmeta"><div class="av" style="background:'+c[0]+';color:'+c[1]+';">'+ini(p.anon_name)+'</div><div class="av-info"><div class="av-name">'+p.anon_name+'</div><div class="av-time">'+timeAgo(p.created_at)+'</div></div></div><span class="tag-pill '+(TAG_CLS[p.tag]||'ptag-m')+'">'+( TAG_LBL[p.tag]||p.tag)+'</span></div><div class="ptext">'+p.content+'</div><div class="pactions"><button class="pab" id="lb-'+p.id+'" onclick="doLike(''+p.id+'',this)">'+svgHeart()+'<span id="lkn-'+p.id+'">'+p.likes+'</span></button><button class="pab" onclick="togRep(''+p.id+'')">'+svgChat()+'<span>'+reps.length+'</span></button>'+(hasFund?'<button class="support-btn" onclick="openDonate(''+p.id+'','post')">Support</button>':'')+' </div>'+(hasFund?'<div class="prog-wrap"><div class="prog-bar"><div class="prog-fill" id="pf-'+p.id+'" style="width:'+pct(p.fund_raised,p.fund_goal)+'%"></div></div><div class="prog-stats"><span><span class="prog-val" id="pd-'+p.id+'">'+fmt(p.fund_raised)+'</span> raised</span><span>Goal '+fmt(p.fund_goal)+'</span></div></div>':'')+
+    '<div class="replies" id="reps-'+p.id+'">'+repHtml+'<div class="reply-compose"><input class="reply-input" id="ri-'+p.id+'" placeholder="Reply anonymously..."/><button class="reply-send" onclick="doReply(''+p.id+'')">Send</button></div></div>';
+    f.appendChild(el);
+  });
+}
+
+async function loadFunds(){
+  var f=document.getElementById('fund-feed');
+  f.innerHTML='<div class="empty"><div class="empty-icon">🌙</div><p>Loading...</p></div>';
+  var res=await db.from('fund_campaigns').select('*').order('created_at',{ascending:false});
+  if(res.error){showToast('Could not load campaigns');return;}
+  fundsCache=res.data||[];
+  renderFunds(fundsCache);
+}
+
+function renderFunds(data){
+  var f=document.getElementById('fund-feed');
+  if(!data||data.length===0){f.innerHTML='<div class="empty"><div class="empty-icon">🌙</div><p>No campaigns yet. Post one from the Share tab.</p></div>';return;}
+  f.innerHTML='';
+  var total=0;
+  data.forEach(function(fn){
+    total+=fn.raised||0;
+    var ci=Math.abs(fn.id.charCodeAt(0))%6;
+    var c=ac(ci);
     var p=pct(fn.raised,fn.goal);
     var el=document.createElement('div');
     el.className='fcard';
     el.id='fcard-'+fn.id;
-    el.innerHTML='<div class="fcard-top"><div class="pmeta"><div class="av" style="background:'+c[0]+';color:'+c[1]+';">'+ini(fn.nm)+'</div><div class="av-info"><div class="av-name">'+fn.nm+'</div><div class="av-time">Anonymous campaign</div></div></div><span class="tag-pill ptag-m">Marriage</span></div><div class="fcard-text">'+fn.txt+'</div><div class="prog-bar"><div class="prog-fill" id="ff-'+fn.id+'" style="width:'+p+'%"></div></div><div class="prog-stats" style="margin:.5rem 0 .9rem;"><span><span class="prog-val" id="fr-'+fn.id+'">'+fmt(fn.raised)+'</span> raised</span><span>Goal '+fmt(fn.goal)+'</span></div><div class="fcard-actions"><button class="fcard-donate" onclick="openDonate('+fn.id+',\'fund\')">Donate — JazakAllah Khair</button><button class="fcard-share" onclick="showToast(\'Share link copied!\')">Share</button></div>';
+    el.innerHTML='<div class="fcard-top"><div class="pmeta"><div class="av" style="background:'+c[0]+';color:'+c[1]+';">'+ini(fn.anon_name)+'</div><div class="av-info"><div class="av-name">'+fn.anon_name+'</div><div class="av-time">Anonymous campaign</div></div></div><span class="tag-pill ptag-m">Marriage</span></div><div class="fcard-text">'+fn.content+'</div><div class="prog-bar"><div class="prog-fill" id="ff-'+fn.id+'" style="width:'+p+'%"></div></div><div class="prog-stats" style="margin:.5rem 0 .9rem;"><span><span class="prog-val" id="fr-'+fn.id+'">'+fmt(fn.raised)+'</span> raised</span><span>Goal '+fmt(fn.goal)+'</span></div><div class="fcard-actions"><button class="fcard-donate" onclick="openDonate(''+fn.id+'','fund')">Donate — JazakAllah Khair</button><button class="fcard-share" onclick="showToast('Share link copied!')">Share</button></div>';
     f.appendChild(el);
   });
-  updateTotalRaised();
+  var tr=document.getElementById('total-raised');
+  if(tr)tr.textContent=fmt(total);
 }
 
-function updateTotalRaised(){
-  var total=funds.reduce(function(s,f){return s+f.raised;},0);
-  document.getElementById('total-raised').textContent=fmt(total);
-}
-
-function filterPosts(tag,btn){
+async function filterPosts(tag,btn){
   filterTag=tag;
   document.querySelectorAll('.tabs .tab').forEach(function(b){b.classList.remove('on');});
   btn.classList.add('on');
-  buildPosts();
+  await loadPosts();
 }
 
-function doLike(id){
-  var p=posts.find(function(x){return x.id===id;});
-  if(!p)return;
-  p.liked=!p.liked;
-  p.lk+=p.liked?1:-1;
-  var btn=document.getElementById('lb-'+id);
+async function doLike(id,btn){
+  var res=await db.from('posts').select('likes').eq('id',id).single();
+  if(res.error)return;
+  var newLikes=(res.data.likes||0)+1;
+  await db.from('posts').update({likes:newLikes}).eq('id',id);
   var span=document.getElementById('lkn-'+id);
-  if(btn)btn.className='pab'+(p.liked?' liked':'');
-  if(span)span.textContent=p.lk;
+  if(span)span.textContent=newLikes;
+  if(btn)btn.classList.add('liked');
 }
 
 function togRep(id){
-  var p=posts.find(function(x){return x.id===id;});
-  if(!p)return;
-  p.repOpen=!p.repOpen;
   var el=document.getElementById('reps-'+id);
-  if(el)el.classList.toggle('open',p.repOpen);
-  var btn=document.getElementById('lb-'+id);
+  if(el)el.classList.toggle('open');
 }
 
-function doReply(id){
+async function doReply(id){
   var inp=document.getElementById('ri-'+id);
   if(!inp||!inp.value.trim())return;
-  var p=posts.find(function(x){return x.id===id;});
-  if(!p)return;
-  p.reps.push({n:'You (anon)',ci:3,t:inp.value.trim()});
-  p.repOpen=true;
+  var adjectives=['Thoughtful','Brave','Hopeful','Sincere','Grateful'];
+  var nouns=['member','soul','voice','heart','friend'];
+  var anonNm='A '+adjectives[Math.floor(Math.random()*adjectives.length)]+' '+nouns[Math.floor(Math.random()*nouns.length)];
+  var res=await db.from('replies').insert({post_id:id,anon_name:anonNm,content:inp.value.trim()});
+  if(res.error){showToast('Could not post reply');return;}
+  inp.value='';
   userStats.replies++;
   document.getElementById('stat-replies').textContent=userStats.replies;
-  inp.value='';
-  buildPosts();
   showToast('Reply posted anonymously');
+  await loadPosts();
+  setTimeout(function(){var el=document.getElementById('reps-'+id);if(el)el.classList.add('open');},100);
 }
 
 function toggleFund(){
@@ -549,16 +568,20 @@ function toggleFund(){
   document.getElementById('goal-group').style.display=fundToggleOn?'block':'none';
 }
 
-function submitPost(){
+async function submitPost(){
   var txt=document.getElementById('compose-text').value.trim();
   if(!txt){showToast('Write something first');return;}
   var tag=document.getElementById('compose-tag').value;
   var goal=fundToggleOn?(parseInt(document.getElementById('goal-input').value)||0):0;
-  var adjectives=['Thoughtful','Brave','Hopeful','Sincere'];
-  var nouns=['member','soul','voice','heart'];
+  var adjectives=['Thoughtful','Brave','Hopeful','Sincere','Grateful'];
+  var nouns=['member','soul','voice','heart','friend'];
   var anonNm='A '+adjectives[Math.floor(Math.random()*adjectives.length)]+' '+nouns[Math.floor(Math.random()*nouns.length)];
-  posts.unshift({id:Date.now(),nm:anonNm,tag:tag,txt:txt,lk:0,tm:'Just now',ci:3,reps:[],donated:0,goal:goal,liked:false,repOpen:false});
-  if(goal>0){funds.unshift({id:Date.now()+1,nm:anonNm,goal:goal,raised:0,txt:txt,ci:3});}
+  var postData={anon_name:anonNm,content:txt,tag:tag,likes:0,has_fund:goal>0,fund_goal:goal,fund_raised:0};
+  var res=await db.from('posts').insert(postData);
+  if(res.error){showToast('Could not post — try again');return;}
+  if(goal>0){
+    await db.from('fund_campaigns').insert({anon_name:anonNm,content:txt,goal:goal,raised:0});
+  }
   document.getElementById('compose-text').value='';
   document.getElementById('goal-input').value='';
   fundToggleOn=false;
@@ -567,8 +590,7 @@ function submitPost(){
   userStats.posts++;
   document.getElementById('stat-posts').textContent=userStats.posts;
   showScreen('home',document.querySelectorAll('.bnav-btn')[0]);
-  buildPosts();
-  buildFunds();
+  await loadPosts();
   showToast('Posted anonymously — JazakAllah Khair');
 }
 
@@ -579,13 +601,13 @@ function openDonate(id,type){
   document.querySelectorAll('#modal-amts .amt-btn')[2].classList.add('sel');
   document.getElementById('modal-amt').textContent=25;
   if(type==='fund'){
-    var fn=funds.find(function(x){return x.id===id;});
-    document.getElementById('modal-name').textContent=fn?fn.nm:'this person';
-    document.getElementById('modal-desc').textContent=fn?fn.txt:'';
+    var fn=fundsCache.find(function(x){return x.id===id;});
+    document.getElementById('modal-name').textContent=fn?fn.anon_name:'this person';
+    document.getElementById('modal-desc').textContent=fn?fn.content:'';
   } else {
-    var p=posts.find(function(x){return x.id===id;});
-    document.getElementById('modal-name').textContent=p?p.nm:'this person';
-    document.getElementById('modal-desc').textContent="Your donation goes directly to this person, anonymously.";
+    var p=postsCache.find(function(x){return x.id===id;});
+    document.getElementById('modal-name').textContent=p?p.anon_name:'this person';
+    document.getElementById('modal-desc').textContent='Your donation goes directly to this person, anonymously.';
   }
   document.getElementById('donate-modal').classList.add('open');
 }
@@ -597,20 +619,27 @@ function pickAmt(amt,btn){
   document.getElementById('modal-amt').textContent=amt;
 }
 
-function confirmDonate(){
+async function confirmDonate(){
   if(!modalTarget)return;
   if(modalTarget.type==='fund'){
-    var fn=funds.find(function(x){return x.id===modalTarget.id;});
-    if(fn){fn.raised=Math.min(fn.goal,fn.raised+modalAmt);}
-    buildFunds();
+    var fn=fundsCache.find(function(x){return x.id===modalTarget.id;});
+    if(fn){
+      var newRaised=Math.min(fn.goal,(fn.raised||0)+modalAmt);
+      await db.from('fund_campaigns').update({raised:newRaised}).eq('id',modalTarget.id);
+    }
+    closeModal();
+    await loadFunds();
   } else {
-    var p=posts.find(function(x){return x.id===modalTarget.id;});
-    if(p&&p.goal>0){p.donated=Math.min(p.goal,p.donated+modalAmt);}
-    buildPosts();
+    var p=postsCache.find(function(x){return x.id===modalTarget.id;});
+    if(p&&p.fund_goal>0){
+      var newRaised2=Math.min(p.fund_goal,(p.fund_raised||0)+modalAmt);
+      await db.from('posts').update({fund_raised:newRaised2}).eq('id',modalTarget.id);
+    }
+    closeModal();
+    await loadPosts();
   }
   userStats.donated+=modalAmt;
   document.getElementById('stat-donated').textContent='$'+userStats.donated;
-  closeModal();
   showToast('JazakAllah Khair! $'+modalAmt+' sent anonymously');
 }
 
@@ -620,13 +649,13 @@ function closeModal(){
 }
 document.getElementById('donate-modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
-function showScreen(name,btn){
+async function showScreen(name,btn){
   document.querySelectorAll('.screen').forEach(function(s){s.classList.remove('active');});
   document.getElementById('screen-'+name).classList.add('active');
   document.querySelectorAll('.bnav-btn').forEach(function(b){b.classList.remove('on');});
   if(btn)btn.classList.add('on');
-  if(name==='home')buildPosts();
-  if(name==='fund')buildFunds();
+  if(name==='home')await loadPosts();
+  if(name==='fund')await loadFunds();
 }
 
 function showToast(msg){
@@ -637,20 +666,20 @@ function showToast(msg){
   window._toastTimer=setTimeout(function(){t.classList.remove('show');},3000);
 }
 
-function enterApp(){
+async function enterApp(){
   document.getElementById('splash').style.display='none';
   var main=document.getElementById('main-app');
   main.style.display='flex';
   main.style.flexDirection='column';
   main.style.flex='1';
-  buildPosts();
-  buildFunds();
   var adjectives=['Hopeful','Sincere','Thoughtful','Brave'];
   var nouns=['soul','voice','heart','member'];
   var anonNm='Anon '+adjectives[Math.floor(Math.random()*adjectives.length)];
   document.getElementById('profile-name').textContent=anonNm;
   document.getElementById('profile-av').textContent=anonNm[0].toUpperCase();
   document.getElementById('anon-name-display').textContent=anonNm;
+  await loadPosts();
+  await loadFunds();
 }
 </script>
 <script>
