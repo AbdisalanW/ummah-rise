@@ -356,6 +356,7 @@ function enterApp(){
   document.getElementById('anon-nm').textContent=anonName;
   loadPosts();
   loadFunds();
+  handleDonationReturn();
 }
 
 document.getElementById('enter-btn').addEventListener('click',enterApp);
@@ -589,29 +590,65 @@ document.querySelectorAll('.amt').forEach(function(b){
 
 document.getElementById('dgo-btn').addEventListener('click',async function(){
   if(!modalTarget)return;
-  this.textContent='Sending...';
+  this.textContent='Opening payment...';
   this.disabled=true;
+  var campaignName='Marriage Fund';
   if(modalTarget.type==='fund'){
     var fn=fundsCache.find(function(x){return x.id===modalTarget.id;});
-    if(fn){
-      var nr=Math.min(fn.goal,(fn.raised||0)+modalAmt);
-      await db('fund_campaigns',{method:'PATCH',query:'id=eq.'+modalTarget.id,body:{raised:nr},prefer:'return=minimal'});
-    }
-    closeModal();await loadFunds();
+    if(fn)campaignName=fn.anon_name+"'s Fund";
   } else {
     var p=postsCache.find(function(x){return x.id===modalTarget.id;});
-    if(p&&p.fund_goal>0){
-      var nr2=Math.min(p.fund_goal,(p.fund_raised||0)+modalAmt);
-      await db('posts',{method:'PATCH',query:'id=eq.'+modalTarget.id,body:{fund_raised:nr2},prefer:'return=minimal'});
-    }
-    closeModal();await loadPosts();
+    if(p)campaignName=p.anon_name+"'s Fund";
   }
-  userStats.donated+=modalAmt;
-  document.getElementById('s-donated').textContent='$'+userStats.donated;
-  toast('JazakAllah Khair! $'+modalAmt+' sent anonymously');
-  this.textContent='Send $'+modalAmt+' - JazakAllah Khair';
-  this.disabled=false;
+  try{
+    var res=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/stripe-checkout',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+SKEY},
+      body:JSON.stringify({amount:modalAmt,campaign_id:modalTarget.id,campaign_name:campaignName,campaign_type:modalTarget.type})
+    });
+    var data=await res.json();
+    if(data.url){window.location.href=data.url;}
+    else{toast('Payment error. Please try again.');this.textContent='Send $'+modalAmt+' - JazakAllah Khair';this.disabled=false;}
+  }catch(e){
+    toast('Payment error. Please try again.');
+    this.textContent='Send $'+modalAmt+' - JazakAllah Khair';
+    this.disabled=false;
+  }
 });
+
+async function handleDonationReturn(){
+  var params=new URLSearchParams(window.location.search);
+  if(params.get('donated')==='true'){
+    var campaign_id=params.get('campaign_id');
+    var campaign_type=params.get('campaign_type')||'fund';
+    var amount=parseInt(params.get('amount'))||0;
+    if(campaign_id&&amount>0){
+      if(campaign_type==='fund'){
+        var r=await db('fund_campaigns',{query:'select=id,raised,goal&id=eq.'+campaign_id});
+        if(r.ok&&r.data&&r.data[0]){
+          var fn=r.data[0];
+          var nr=Math.min(fn.goal,(fn.raised||0)+amount);
+          await db('fund_campaigns',{method:'PATCH',query:'id=eq.'+campaign_id,body:{raised:nr},prefer:'return=minimal'});
+        }
+      } else {
+        var r2=await db('posts',{query:'select=id,fund_raised,fund_goal&id=eq.'+campaign_id});
+        if(r2.ok&&r2.data&&r2.data[0]){
+          var p2=r2.data[0];
+          var nr2=Math.min(p2.fund_goal,(p2.fund_raised||0)+amount);
+          await db('posts',{method:'PATCH',query:'id=eq.'+campaign_id,body:{fund_raised:nr2},prefer:'return=minimal'});
+        }
+      }
+      userStats.donated+=amount;
+      document.getElementById('s-donated').textContent='$'+userStats.donated;
+      toast('JazakAllah Khair! Your donation was received ♥');
+    }
+    window.history.replaceState({},'',window.location.pathname);
+  }
+  if(params.get('cancelled')==='true'){
+    toast('Donation cancelled.');
+    window.history.replaceState({},'',window.location.pathname);
+  }
+}
 
 document.getElementById('cancel-btn').addEventListener('click',closeModal);
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
