@@ -601,7 +601,7 @@ document.getElementById('dgo-btn').addEventListener('click',async function(){
     if(p)campaignName=p.anon_name+"'s Fund";
   }
   try{
-    var res=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/stripe-checkout',{
+    var res=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/Stripe-Checkout',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+SKEY},
       body:JSON.stringify({amount:modalAmt,campaign_id:modalTarget.id,campaign_name:campaignName,campaign_type:modalTarget.type})
