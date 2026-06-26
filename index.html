@@ -190,6 +190,9 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
 .claim-result .cr-txt{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:.75rem;}
 .claim-result .cr-fund{display:flex;justify-content:space-between;font-size:13px;margin-bottom:.5rem;}
 .payout-btn{width:100%;padding:12px;font-size:14px;font-weight:600;border:none;border-radius:var(--rsm);background:var(--green);color:#0d1a10;cursor:pointer;margin-top:.75rem;}
+.report-btn{font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:var(--rpill);background:transparent;color:var(--text3);cursor:pointer;margin-left:auto;transition:all .2s;}
+.report-btn:hover{border-color:rgba(251,113,133,.4);color:var(--rose);}
+.report-btn.reported{color:var(--rose);border-color:rgba(251,113,133,.3);background:var(--rdim);pointer-events:none;}
 </style>
 </head>
 <body>
@@ -218,6 +221,9 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       <button class="tab" data-tag="m">Marriage</button>
       <button class="tab" data-tag="me">Mental health</button>
       <button class="tab" data-tag="fa">Family</button>
+    </div>
+    <div style="padding:.75rem 1.25rem 0;">
+      <input class="claim-input" id="search-input" type="text" placeholder="Search posts..." style="width:100%;font-size:13px;padding:10px 14px;"/>
     </div>
     <div class="feed" id="post-feed"><div class="loading">Loading...</div></div>
   </div>
@@ -392,11 +398,23 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
 <div class="claim-modal" id="claim-modal">
   <div class="claim-box">
     <h3>Your claim code</h3>
-    <p>This is the only way to access your funds later. Save it somewhere safe — it will not be shown again.</p>
+    <p>This is the <strong>only way</strong> to access your funds later. Save it somewhere safe.</p>
     <div class="claim-code-display" id="claim-code-display">UMMAH-XXXX-XXXX</div>
-    <div class="claim-warn">If you lose this code, there is no way to recover it.</div>
-    <button class="subbtn" id="claim-copy-btn" style="margin-bottom:.5rem;">Copy code</button>
-    <button class="canbtn" id="claim-dismiss-btn">I saved it — continue</button>
+    <div class="claim-warn">This code will not be shown again. If you lose it, your funds cannot be recovered.</div>
+    <button class="subbtn" id="claim-copy-btn" style="margin-bottom:.75rem;">Copy code</button>
+    <div style="margin-bottom:.75rem;">
+      <p style="font-size:12px;color:var(--text2);margin-bottom:.5rem;">Or send it to your email as a backup:</p>
+      <div style="display:flex;gap:8px;">
+        <input class="claim-input" id="claim-email-input" type="email" placeholder="your@email.com" style="flex:1;font-size:13px;"/>
+        <button class="subbtn" id="claim-email-btn" style="width:auto;padding:10px 14px;margin-top:0;font-size:12px;">Send</button>
+      </div>
+      <p id="claim-email-msg" style="display:none;font-size:11px;color:var(--green);margin-top:.4rem;"></p>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-bottom:.75rem;cursor:pointer;">
+      <input type="checkbox" id="claim-confirm-check" style="width:16px;height:16px;accent-color:var(--green);"/>
+      I have saved my claim code
+    </label>
+    <button class="subbtn" id="claim-dismiss-btn" disabled style="opacity:.4;">Continue</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -518,6 +536,7 @@ function renderPosts(data){
         '<button class="pab like-btn" data-id="'+p.id+'">'+svgH()+'<span class="lkc">'+p.likes+'</span></button>'+
         '<button class="pab rep-btn" data-id="'+p.id+'">'+svgC()+'<span>'+reps.length+'</span></button>'+
         (hasFund?'<button class="supbtn don-btn" data-id="'+p.id+'" data-type="post">Support</button>':'')+
+        '<button class="report-btn flag-btn" data-id="'+p.id+'" data-table="posts">Report</button>'+
       '</div>'+
       (hasFund?
         '<div style="margin-top:.75rem;">'+
@@ -543,6 +562,19 @@ document.querySelectorAll('.tab').forEach(function(b){
     this.classList.add('on');
     loadPosts();
   });
+});
+
+var searchTimeout=null;
+document.getElementById('search-input').addEventListener('input',function(){
+  var q=this.value.trim().toLowerCase();
+  clearTimeout(searchTimeout);
+  searchTimeout=setTimeout(function(){
+    if(!q){renderPosts(postsCache);return;}
+    var filtered=postsCache.filter(function(p){
+      return (p.content&&p.content.toLowerCase().includes(q))||(p.anon_name&&p.anon_name.toLowerCase().includes(q));
+    });
+    renderPosts(filtered);
+  },300);
 });
 
 document.getElementById('post-feed').addEventListener('click',async function(e){
@@ -838,6 +870,7 @@ function renderTaasiya(data){
       :'')+
       '<div class="tcard-acts">'+
         '<button class="dua-btn" data-id="'+t.id+'">&#10024; Send Dua <span class="dua-count">'+(t.duas||0)+'</span></button>'+
+        '<button class="report-btn flag-btn" data-id="'+t.id+'" data-table="taasiya_posts" style="margin-left:auto;">Report</button>'+
       '</div>';
     f.appendChild(div);
   });
@@ -947,10 +980,46 @@ document.getElementById('claim-copy-btn').addEventListener('click',function(){
   });
 });
 
+document.getElementById('claim-confirm-check').addEventListener('change',function(){
+  var btn=document.getElementById('claim-dismiss-btn');
+  btn.disabled=!this.checked;
+  btn.style.opacity=this.checked?'1':'.4';
+});
+
 document.getElementById('claim-dismiss-btn').addEventListener('click',function(){
+  if(this.disabled)return;
   document.getElementById('claim-modal').classList.remove('on');
+  document.getElementById('claim-confirm-check').checked=false;
+  this.disabled=true;this.style.opacity='.4';
   showScr('home');
   toast('Posted anonymously — JazakAllah Khair');
+});
+
+document.getElementById('claim-email-btn').addEventListener('click',async function(){
+  var email=document.getElementById('claim-email-input').value.trim();
+  if(!email||!email.includes('@')){toast('Enter a valid email');return;}
+  var code=document.getElementById('claim-code-display').textContent;
+  this.textContent='Sending...';this.disabled=true;
+  try{
+    var res=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/payout-request',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        claim_code:code,
+        anon_name:'Claim Code Backup',
+        content:'Your Ummah Rise claim code is: '+code+'. Keep this email safe — you will need this code to claim your funds.',
+        raised:0,goal:0,table:'email-backup',
+        recipient_email:email
+      })
+    });
+    var msg=document.getElementById('claim-email-msg');
+    msg.textContent='Code sent to '+email;
+    msg.style.display='block';
+    toast('Claim code sent to your email');
+  }catch(e){
+    toast('Could not send email. Copy the code instead.');
+  }
+  this.textContent='Send';this.disabled=false;
 });
 
 function renderMyPosts(){
@@ -1028,6 +1097,7 @@ document.getElementById('claim-lookup-btn').addEventListener('click',async funct
     this.textContent='Look up';this.disabled=false;return;
   }
 
+  window._claimResult={found:found,table:table,raisedField:raisedField,goalField:goalField,code:code};
   document.getElementById('cr-name').textContent=found.anon_name||'Anonymous';
   document.getElementById('cr-txt').textContent=found.content||'';
   document.getElementById('cr-raised').textContent=fmt(found[raisedField]||0);
@@ -1036,20 +1106,74 @@ document.getElementById('claim-lookup-btn').addEventListener('click',async funct
   document.getElementById('cr-bar').style.width=pctVal+'%';
   document.getElementById('payout-msg').style.display='none';
   document.getElementById('payout-btn').style.display='block';
+  document.getElementById('payout-btn').disabled=false;
+  document.getElementById('payout-btn').textContent='Request payout';
   document.getElementById('claim-result').classList.add('on');
   this.textContent='Look up';this.disabled=false;
 });
 
-document.getElementById('payout-btn').addEventListener('click',function(){
-  this.style.display='none';
-  var msg=document.getElementById('payout-msg');
-  msg.textContent='Payout request sent. We will contact you within 48 hours. JazakAllah Khair.';
-  msg.style.display='block';
-  toast('Payout request submitted');
+document.getElementById('payout-btn').addEventListener('click',async function(){
+  if(!window._claimResult)return;
+  var cr=window._claimResult;
+  this.textContent='Sending request...';
+  this.disabled=true;
+  try{
+    var res=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/payout-request',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        claim_code:cr.code,
+        anon_name:cr.found.anon_name||'Anonymous',
+        content:cr.found.content||'',
+        raised:cr.found[cr.raisedField]||0,
+        goal:cr.found[cr.goalField]||0,
+        table:cr.table
+      })
+    });
+    var data=await res.json();
+    if(data.success){
+      this.style.display='none';
+      var msg=document.getElementById('payout-msg');
+      msg.textContent='Payout request sent! We will review and process within 48 hours. JazakAllah Khair.';
+      msg.style.display='block';
+      toast('Payout request submitted');
+    } else {
+      this.textContent='Request payout';this.disabled=false;
+      toast('Could not send request. Try again.');
+    }
+  }catch(e){
+    this.textContent='Request payout';this.disabled=false;
+    toast('Could not send request. Try again.');
+  }
 });
 
 renderMyPosts();
 refreshMyPostFunds();
+
+var reportedPosts=JSON.parse(localStorage.getItem('ummah_reported')||'[]');
+document.addEventListener('click',function(e){
+  var btn=e.target.closest('.flag-btn');
+  if(!btn)return;
+  var id=btn.getAttribute('data-id');
+  var table=btn.getAttribute('data-table');
+  if(reportedPosts.includes(id)){toast('Already reported');return;}
+  if(!confirm('Report this post for inappropriate content?'))return;
+  reportedPosts.push(id);
+  localStorage.setItem('ummah_reported',JSON.stringify(reportedPosts));
+  btn.textContent='Reported';
+  btn.classList.add('reported');
+  toast('Report submitted. JazakAllah Khair.');
+  fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/payout-request',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      claim_code:'REPORT',
+      anon_name:'Content Report',
+      content:'Post ID: '+id+' in table: '+table+' has been flagged by a user for review.',
+      raised:0,goal:0,table:'report'
+    })
+  }).catch(function(){});
+});
 
 </script>
 <script>
