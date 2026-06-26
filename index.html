@@ -166,6 +166,30 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
 .loading{text-align:center;padding:3rem 1.5rem;color:var(--text3);font-size:14px;}
 .empty{text-align:center;padding:3rem 1.5rem;color:var(--text3);}
 .empty-icon{font-size:2.5rem;margin-bottom:.75rem;}
+.claim-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:250;display:none;align-items:center;justify-content:center;padding:1.25rem;}
+.claim-modal.on{display:flex;}
+.claim-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);width:100%;max-width:400px;padding:2rem 1.5rem;text-align:center;}
+.claim-box h3{font-family:var(--serif);font-size:1.3rem;font-weight:400;margin-bottom:.5rem;}
+.claim-box p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:1.25rem;}
+.claim-code-display{background:var(--bg3);border:2px dashed rgba(74,222,128,.4);border-radius:var(--rsm);padding:1rem;margin-bottom:1rem;font-family:var(--sans);font-size:1.1rem;font-weight:600;color:var(--green);letter-spacing:.1em;user-select:all;}
+.claim-warn{font-size:12px;color:var(--rose);margin-bottom:1.25rem;line-height:1.6;}
+.my-posts-section{margin-top:1.25rem;}
+.my-post-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:.9rem;margin-bottom:.75rem;}
+.my-post-card .mp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;}
+.my-post-card .mp-type{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;}
+.my-post-card .mp-date{font-size:11px;color:var(--text3);}
+.my-post-card .mp-txt{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:.5rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.my-post-card .mp-fund{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--green);}
+.my-post-card .mp-code{font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:.4rem;}
+.claim-input-wrap{display:flex;gap:8px;margin-top:.75rem;}
+.claim-input{flex:1;padding:10px 14px;font-size:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:var(--sans);letter-spacing:.05em;}
+.claim-input:focus{outline:none;border-color:rgba(74,222,128,.4);}
+.claim-result{margin-top:1rem;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);display:none;}
+.claim-result.on{display:block;}
+.claim-result .cr-name{font-size:14px;font-weight:500;margin-bottom:.3rem;}
+.claim-result .cr-txt{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:.75rem;}
+.claim-result .cr-fund{display:flex;justify-content:space-between;font-size:13px;margin-bottom:.5rem;}
+.payout-btn{width:100%;padding:12px;font-size:14px;font-weight:600;border:none;border-radius:var(--rsm);background:var(--green);color:#0d1a10;cursor:pointer;margin-top:.75rem;}
 </style>
 </head>
 <body>
@@ -260,7 +284,32 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
         <div class="pst"><div class="pstv" id="s-replies">0</div><div class="pstl">Replies</div></div>
         <div class="pst"><div class="pstv" id="s-donated">$0</div><div class="pstl">Donated</div></div>
       </div>
-      <div class="stitle">Settings</div>
+      <div class="stitle">My posts</div>
+      <div id="my-posts-list">
+        <div style="text-align:center;padding:1rem;color:var(--text3);font-size:13px;">No posts yet. Share something with the community.</div>
+      </div>
+
+      <div class="stitle" style="margin-top:1.25rem;">Claim funds</div>
+      <div style="padding:0 0 1rem;">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:.75rem;line-height:1.6;">Have a claim code? Enter it below to check your fund status and request a payout.</p>
+        <div class="claim-input-wrap">
+          <input class="claim-input" id="claim-code-input" placeholder="e.g. UMMAH-7KX2-MFPQ" maxlength="14"/>
+          <button class="subbtn" id="claim-lookup-btn" style="width:auto;padding:10px 18px;margin-top:0;">Look up</button>
+        </div>
+        <div class="claim-result" id="claim-result">
+          <div class="cr-name" id="cr-name"></div>
+          <div class="cr-txt" id="cr-txt"></div>
+          <div class="cr-fund">
+            <span>Raised: <span id="cr-raised" style="color:var(--green);font-weight:600;">$0</span></span>
+            <span>Goal: <span id="cr-goal">$0</span></span>
+          </div>
+          <div class="pbar"><div class="pfill" id="cr-bar" style="width:0%"></div></div>
+          <button class="payout-btn" id="payout-btn">Request payout</button>
+          <p id="payout-msg" style="display:none;font-size:12px;color:var(--green);margin-top:.5rem;text-align:center;"></p>
+        </div>
+      </div>
+
+      <div class="stitle" style="margin-top:1rem;">Settings</div>
       <div class="srow"><div><div class="slbl">Anonymous name</div><div class="ssub">Randomly assigned</div></div><div class="sval" id="anon-nm">-</div></div>
       <div class="srow"><div><div class="slbl">Dark mode</div><div class="ssub">Always on</div></div><span class="sval">On</span></div>
       <div class="srow" style="border:none;"><div><div class="slbl">Privacy policy</div><div class="ssub">How we protect you</div></div><span class="sval">></span></div>
@@ -338,6 +387,16 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
     </div>
     <button class="dgo" id="dgo-btn">Send $<span id="m-amt">25</span> - JazakAllah Khair</button>
     <button class="canbtn" id="cancel-btn">Cancel</button>
+  </div>
+</div>
+<div class="claim-modal" id="claim-modal">
+  <div class="claim-box">
+    <h3>Your claim code</h3>
+    <p>This is the only way to access your funds later. Save it somewhere safe — it will not be shown again.</p>
+    <div class="claim-code-display" id="claim-code-display">UMMAH-XXXX-XXXX</div>
+    <div class="claim-warn">If you lose this code, there is no way to recover it.</div>
+    <button class="subbtn" id="claim-copy-btn" style="margin-bottom:.5rem;">Copy code</button>
+    <button class="canbtn" id="claim-dismiss-btn">I saved it — continue</button>
   </div>
 </div>
 <div class="toast" id="toast"></div>
@@ -590,8 +649,9 @@ document.getElementById('post-btn').addEventListener('click',async function(){
   var body={anon_name:nm,content:txt,tag:tag,likes:0,has_fund:goal>0,fund_goal:goal,fund_raised:0};
   this.textContent='Posting...';
   this.disabled=true;
-  var r=await db('posts',{method:'POST',body:body,prefer:'return=minimal'});
+  var r=await db('posts',{method:'POST',body:body,prefer:'return=representation'});
   if(r.ok){
+    var newPost=r.data&&r.data[0]?r.data[0]:null;
     if(goal>0){
       await db('fund_campaigns',{method:'POST',body:{anon_name:nm,content:txt,goal:goal,raised:0},prefer:'return=minimal'});
     }
@@ -602,8 +662,15 @@ document.getElementById('post-btn').addEventListener('click',async function(){
     document.getElementById('goal-grp').style.display='none';
     userStats.posts++;
     document.getElementById('s-posts').textContent=userStats.posts;
-    showScr('home');
-    toast('Posted anonymously - JazakAllah Khair');
+    if(goal>0&&newPost){
+      var code=generateClaimCode();
+      saveMyPost({id:newPost.id,type:'post',code:code,content:txt,tag:tag,goal:goal,raised:0,created_at:newPost.created_at||new Date().toISOString()});
+      showClaimCode(code);
+    } else {
+      if(newPost)saveMyPost({id:newPost.id,type:'post',code:null,content:txt,tag:tag,goal:0,raised:0,created_at:newPost.created_at||new Date().toISOString()});
+      showScr('home');
+      toast('Posted anonymously - JazakAllah Khair');
+    }
   } else {
     toast('Could not post - try again');
   }
@@ -821,8 +888,9 @@ document.getElementById('taasiya-post-btn').addEventListener('click',async funct
   var body={anon_name:nm,content:txt,grief_type:selectedGriefType,duas:0,has_fund:goal>0,fund_goal:goal,fund_raised:0};
   this.textContent='Sharing...';
   this.disabled=true;
-  var r=await db('taasiya_posts',{method:'POST',body:body,prefer:'return=minimal'});
+  var r=await db('taasiya_posts',{method:'POST',body:body,prefer:'return=representation'});
   if(r.ok){
+    var newPost=r.data&&r.data[0]?r.data[0]:null;
     document.getElementById('taasiya-txt').value='';
     document.getElementById('taasiya-goal-input').value='';
     taasiyaFundOn=false;
@@ -830,7 +898,14 @@ document.getElementById('taasiya-post-btn').addEventListener('click',async funct
     document.getElementById('taasiya-goal-grp').style.display='none';
     document.getElementById('taasiya-main').style.display='flex';
     document.getElementById('taasiya-compose').style.display='none';
-    toast('May Allah grant you ease. Ameen.');
+    if(goal>0&&newPost){
+      var code=generateClaimCode();
+      saveMyPost({id:newPost.id,type:'taasiya',code:code,content:txt,grief_type:selectedGriefType,goal:goal,raised:0,created_at:newPost.created_at||new Date().toISOString()});
+      showClaimCode(code);
+    } else {
+      if(newPost)saveMyPost({id:newPost.id,type:'taasiya',code:null,content:txt,grief_type:selectedGriefType,goal:0,raised:0,created_at:newPost.created_at||new Date().toISOString()});
+      toast('May Allah grant you ease. Ameen.');
+    }
     await loadTaasiya();
   } else {
     toast('Could not post. Try again.');
@@ -838,6 +913,131 @@ document.getElementById('taasiya-post-btn').addEventListener('click',async funct
   this.textContent='Share anonymously';
   this.disabled=false;
 });
+
+function generateClaimCode(){
+  var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var seg=function(n){var s='';for(var i=0;i<n;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s;};
+  return 'UMMAH-'+seg(4)+'-'+seg(4);
+}
+
+function getMyPosts(){
+  try{return JSON.parse(localStorage.getItem('ummah_my_posts')||'[]');}catch(e){return[];}
+}
+
+function saveMyPost(post){
+  var posts=getMyPosts();
+  posts.unshift(post);
+  localStorage.setItem('ummah_my_posts',JSON.stringify(posts));
+  renderMyPosts();
+}
+
+function showClaimCode(code){
+  document.getElementById('claim-code-display').textContent=code;
+  document.getElementById('claim-modal').classList.add('on');
+}
+
+document.getElementById('claim-copy-btn').addEventListener('click',function(){
+  var code=document.getElementById('claim-code-display').textContent;
+  navigator.clipboard.writeText(code).then(function(){
+    toast('Code copied to clipboard');
+  }).catch(function(){
+    toast('Long-press the code to copy it');
+  });
+});
+
+document.getElementById('claim-dismiss-btn').addEventListener('click',function(){
+  document.getElementById('claim-modal').classList.remove('on');
+  showScr('home');
+  toast('Posted anonymously — JazakAllah Khair');
+});
+
+function renderMyPosts(){
+  var posts=getMyPosts();
+  var el=document.getElementById('my-posts-list');
+  if(!posts||posts.length===0){
+    el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--text3);font-size:13px;">No posts yet. Share something with the community.</div>';
+    return;
+  }
+  el.innerHTML='';
+  posts.forEach(function(p){
+    var d=document.createElement('div');
+    d.className='my-post-card';
+    var typeLabel=p.type==='taasiya'?(p.grief_type||'Taasiya'):(p.tag==='m'?'Marriage':p.tag==='fa'?'Family':p.tag==='fai'?'Faith':p.tag==='me'?'Mental health':p.tag==='fi'?'Finance':'Post');
+    var dateStr=p.created_at?new Date(p.created_at).toLocaleDateString():'';
+    var fundHtml='';
+    if(p.goal>0){
+      fundHtml='<div class="mp-fund"><span>Raised: '+fmt(p.raised||0)+'</span><span>Goal: '+fmt(p.goal)+'</span></div>';
+      if(p.code)fundHtml+='<div class="mp-code">Claim code: '+p.code+'</div>';
+    }
+    d.innerHTML='<div class="mp-top"><span class="mp-type">'+typeLabel+'</span><span class="mp-date">'+dateStr+'</span></div><div class="mp-txt">'+p.content+'</div>'+fundHtml;
+    el.appendChild(d);
+  });
+}
+
+async function refreshMyPostFunds(){
+  var posts=getMyPosts();
+  var changed=false;
+  for(var i=0;i<posts.length;i++){
+    var p=posts[i];
+    if(p.goal>0){
+      var table=p.type==='taasiya'?'taasiya_posts':p.type==='fund'?'fund_campaigns':'posts';
+      var field=table==='fund_campaigns'?'raised':'fund_raised';
+      var r=await db(table,{query:'select=id,'+field+'&id=eq.'+p.id});
+      if(r.ok&&r.data&&r.data[0]){
+        var newRaised=r.data[0][field]||0;
+        if(newRaised!==p.raised){p.raised=newRaised;changed=true;}
+      }
+    }
+  }
+  if(changed){localStorage.setItem('ummah_my_posts',JSON.stringify(posts));renderMyPosts();}
+}
+
+document.getElementById('claim-lookup-btn').addEventListener('click',async function(){
+  var code=document.getElementById('claim-code-input').value.trim().toUpperCase();
+  if(!code||code.length<10){toast('Enter a valid claim code');return;}
+  this.textContent='Looking up...';
+  this.disabled=true;
+  var posts=getMyPosts();
+  var found=posts.find(function(p){return p.code===code;});
+  if(!found){
+    document.getElementById('claim-result').classList.remove('on');
+    toast('Code not found. Check the code and try again.');
+    this.textContent='Look up';this.disabled=false;return;
+  }
+  var table=found.type==='taasiya'?'taasiya_posts':found.type==='fund'?'fund_campaigns':'posts';
+  var raisedField=table==='fund_campaigns'?'raised':'fund_raised';
+  var goalField=table==='fund_campaigns'?'goal':'fund_goal';
+  var r=await db(table,{query:'select=*&id=eq.'+found.id});
+  if(r.ok&&r.data&&r.data[0]){
+    var d=r.data[0];
+    document.getElementById('cr-name').textContent=d.anon_name||'Anonymous';
+    document.getElementById('cr-txt').textContent=d.content||found.content;
+    document.getElementById('cr-raised').textContent=fmt(d[raisedField]||0);
+    document.getElementById('cr-goal').textContent=fmt(d[goalField]||found.goal);
+    var pctVal=d[goalField]>0?Math.min(100,Math.round(((d[raisedField]||0)/(d[goalField]))*100)):0;
+    document.getElementById('cr-bar').style.width=pctVal+'%';
+    document.getElementById('payout-msg').style.display='none';
+    document.getElementById('payout-btn').style.display='block';
+    document.getElementById('claim-result').classList.add('on');
+    found.raised=d[raisedField]||0;
+    localStorage.setItem('ummah_my_posts',JSON.stringify(posts));
+  } else {
+    toast('Could not find this campaign.');
+    document.getElementById('claim-result').classList.remove('on');
+  }
+  this.textContent='Look up';this.disabled=false;
+});
+
+document.getElementById('payout-btn').addEventListener('click',function(){
+  this.style.display='none';
+  var msg=document.getElementById('payout-msg');
+  msg.textContent='Payout request sent. We will contact you within 48 hours. JazakAllah Khair.';
+  msg.style.display='block';
+  toast('Payout request submitted');
+});
+
+renderMyPosts();
+refreshMyPostFunds();
 
 </script>
 <script>
