@@ -300,6 +300,19 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
         <label class="flbl">Share what is on your heart</label>
         <textarea id="taasiya-txt" placeholder="You are safe here. No one knows who you are..." style="width:100%;min-height:120px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);padding:.75rem;font-size:14px;resize:vertical;"></textarea>
       </div>
+      <div class="fgrp">
+        <div class="trow" id="taasiya-fund-toggle-row">
+          <div>
+            <div class="tlbl">Attach a fundraising goal</div>
+            <div class="tsub">Let the community help with costs (funeral, medical, etc.)</div>
+          </div>
+          <div class="tog" id="taasiya-fund-tog"><div class="tknob"></div></div>
+        </div>
+      </div>
+      <div id="taasiya-goal-grp" style="display:none;" class="fgrp">
+        <label class="flbl">Goal amount USD</label>
+        <input type="number" class="ginput" id="taasiya-goal-input" placeholder="e.g. 3000"/>
+      </div>
       <button class="subbtn" id="taasiya-post-btn" style="width:100%;">Share anonymously</button>
     </div>
   </div>
@@ -608,6 +621,10 @@ function openModal(id,type){
     var fn=fundsCache.find(function(x){return x.id===id;});
     document.getElementById('m-name').textContent=fn?fn.anon_name:'this person';
     document.getElementById('m-desc').textContent=fn?fn.content:'';
+  } else if(type==='taasiya'){
+    var t=taasiyaCache.find(function(x){return x.id===id;});
+    document.getElementById('m-name').textContent=t?t.anon_name:'this person';
+    document.getElementById('m-desc').textContent=t?t.content:'Your donation goes directly to this person, anonymously.';
   } else {
     var p=postsCache.find(function(x){return x.id===id;});
     document.getElementById('m-name').textContent=p?p.anon_name:'this person';
@@ -629,10 +646,13 @@ document.getElementById('dgo-btn').addEventListener('click',async function(){
   if(!modalTarget)return;
   this.textContent='Opening payment...';
   this.disabled=true;
-  var campaignName='Marriage Fund';
+  var campaignName='Fund';
   if(modalTarget.type==='fund'){
     var fn=fundsCache.find(function(x){return x.id===modalTarget.id;});
     if(fn)campaignName=fn.anon_name+"'s Fund";
+  } else if(modalTarget.type==='taasiya'){
+    var t=taasiyaCache.find(function(x){return x.id===modalTarget.id;});
+    if(t)campaignName=t.anon_name+"'s Taasiya Fund";
   } else {
     var p=postsCache.find(function(x){return x.id===modalTarget.id;});
     if(p)campaignName=p.anon_name+"'s Fund";
@@ -667,6 +687,13 @@ async function handleDonationReturn(){
           var nr=Math.min(fn.goal,(fn.raised||0)+amount);
           await db('fund_campaigns',{method:'PATCH',query:'id=eq.'+campaign_id,body:{raised:nr},prefer:'return=minimal'});
         }
+      } else if(campaign_type==='taasiya'){
+        var r3=await db('taasiya_posts',{query:'select=id,fund_raised,fund_goal&id=eq.'+campaign_id});
+        if(r3.ok&&r3.data&&r3.data[0]){
+          var t3=r3.data[0];
+          var nr3=Math.min(t3.fund_goal,(t3.fund_raised||0)+amount);
+          await db('taasiya_posts',{method:'PATCH',query:'id=eq.'+campaign_id,body:{fund_raised:nr3},prefer:'return=minimal'});
+        }
       } else {
         var r2=await db('posts',{query:'select=id,fund_raised,fund_goal&id=eq.'+campaign_id});
         if(r2.ok&&r2.data&&r2.data[0]){
@@ -694,6 +721,13 @@ function closeModal(){document.getElementById('modal').classList.remove('on');mo
 // ── TAASIYA ──
 var taasiyaCache=[];
 var selectedGriefType='Loved one';
+var taasiyaFundOn=false;
+
+document.getElementById('taasiya-fund-toggle-row').addEventListener('click',function(){
+  taasiyaFundOn=!taasiyaFundOn;
+  document.getElementById('taasiya-fund-tog').classList.toggle('on',taasiyaFundOn);
+  document.getElementById('taasiya-goal-grp').style.display=taasiyaFundOn?'block':'none';
+});
 
 async function loadTaasiya(){
   document.getElementById('taasiya-feed').innerHTML='<div class="loading">Loading...</div>';
@@ -727,6 +761,13 @@ function renderTaasiya(data){
         '<span class="tcard-type">'+(t.grief_type||'Grief')+'</span>'+
       '</div>'+
       '<div class="tcard-txt">'+t.content+'</div>'+
+      (t.has_fund&&t.fund_goal>0?
+        '<div class="pfund">'+
+          '<div class="pbar"><div class="pfill" style="width:'+pct(t.fund_raised,t.fund_goal)+'%"></div></div>'+
+          '<div class="pstats"><span><span class="pval">'+fmt(t.fund_raised)+'</span> raised</span><span>Goal '+fmt(t.fund_goal)+'</span></div>'+
+        '</div>'+
+        '<button class="supbtn don-btn" data-id="'+t.id+'" data-type="taasiya" style="margin:.5rem 0;">Support</button>'
+      :'')+
       '<div class="tcard-acts">'+
         '<button class="dua-btn" data-id="'+t.id+'">&#10024; Send Dua <span class="dua-count">'+(t.duas||0)+'</span></button>'+
       '</div>';
@@ -735,6 +776,8 @@ function renderTaasiya(data){
 }
 
 document.getElementById('taasiya-feed').addEventListener('click',async function(e){
+  var db2=e.target.closest('.don-btn');
+  if(db2){openModal(db2.getAttribute('data-id'),'taasiya');return;}
   var btn=e.target.closest('.dua-btn');
   if(btn){
     var id=btn.getAttribute('data-id');
@@ -774,12 +817,17 @@ document.getElementById('taasiya-post-btn').addEventListener('click',async funct
   var txt=document.getElementById('taasiya-txt').value.trim();
   if(!txt){toast('Share what is on your heart');return;}
   var nm=randName();
-  var body={anon_name:nm,content:txt,grief_type:selectedGriefType,duas:0};
+  var goal=taasiyaFundOn?(parseInt(document.getElementById('taasiya-goal-input').value)||0):0;
+  var body={anon_name:nm,content:txt,grief_type:selectedGriefType,duas:0,has_fund:goal>0,fund_goal:goal,fund_raised:0};
   this.textContent='Sharing...';
   this.disabled=true;
   var r=await db('taasiya_posts',{method:'POST',body:body,prefer:'return=minimal'});
   if(r.ok){
     document.getElementById('taasiya-txt').value='';
+    document.getElementById('taasiya-goal-input').value='';
+    taasiyaFundOn=false;
+    document.getElementById('taasiya-fund-tog').classList.remove('on');
+    document.getElementById('taasiya-goal-grp').style.display='none';
     document.getElementById('taasiya-main').style.display='flex';
     document.getElementById('taasiya-compose').style.display='none';
     toast('May Allah grant you ease. Ameen.');

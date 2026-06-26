@@ -1,4 +1,4 @@
-const CACHE = 'ummah-rise-v3';
+const CACHE = 'ummah-rise-v4';
 const ASSETS = [
   '/',
   '/index.html',
