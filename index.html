@@ -646,14 +646,15 @@ document.getElementById('post-btn').addEventListener('click',async function(){
   var tag=document.getElementById('ctag').value;
   var goal=fundOn?(parseInt(document.getElementById('goal-input').value)||0):0;
   var nm=randName();
-  var body={anon_name:nm,content:txt,tag:tag,likes:0,has_fund:goal>0,fund_goal:goal,fund_raised:0};
+  var claimCode=goal>0?generateClaimCode():null;
+  var body={anon_name:nm,content:txt,tag:tag,likes:0,has_fund:goal>0,fund_goal:goal,fund_raised:0,claim_code:claimCode};
   this.textContent='Posting...';
   this.disabled=true;
   var r=await db('posts',{method:'POST',body:body,prefer:'return=representation'});
   if(r.ok){
     var newPost=r.data&&r.data[0]?r.data[0]:null;
     if(goal>0){
-      await db('fund_campaigns',{method:'POST',body:{anon_name:nm,content:txt,goal:goal,raised:0},prefer:'return=minimal'});
+      await db('fund_campaigns',{method:'POST',body:{anon_name:nm,content:txt,goal:goal,raised:0,claim_code:claimCode},prefer:'return=minimal'});
     }
     document.getElementById('ctxt').value='';
     document.getElementById('goal-input').value='';
@@ -885,7 +886,8 @@ document.getElementById('taasiya-post-btn').addEventListener('click',async funct
   if(!txt){toast('Share what is on your heart');return;}
   var nm=randName();
   var goal=taasiyaFundOn?(parseInt(document.getElementById('taasiya-goal-input').value)||0):0;
-  var body={anon_name:nm,content:txt,grief_type:selectedGriefType,duas:0,has_fund:goal>0,fund_goal:goal,fund_raised:0};
+  var taasiyaClaimCode=goal>0?generateClaimCode():null;
+  var body={anon_name:nm,content:txt,grief_type:selectedGriefType,duas:0,has_fund:goal>0,fund_goal:goal,fund_raised:0,claim_code:taasiyaClaimCode};
   this.textContent='Sharing...';
   this.disabled=true;
   var r=await db('taasiya_posts',{method:'POST',body:body,prefer:'return=representation'});
@@ -997,34 +999,44 @@ document.getElementById('claim-lookup-btn').addEventListener('click',async funct
   if(!code||code.length<10){toast('Enter a valid claim code');return;}
   this.textContent='Looking up...';
   this.disabled=true;
-  var posts=getMyPosts();
-  var found=posts.find(function(p){return p.code===code;});
+
+  var found=null;
+  var table='';
+  var raisedField='';
+  var goalField='';
+
+  var r1=await db('posts',{query:'select=*&claim_code=eq.'+code});
+  if(r1.ok&&r1.data&&r1.data.length>0){
+    found=r1.data[0];table='posts';raisedField='fund_raised';goalField='fund_goal';
+  }
+  if(!found){
+    var r2=await db('fund_campaigns',{query:'select=*&claim_code=eq.'+code});
+    if(r2.ok&&r2.data&&r2.data.length>0){
+      found=r2.data[0];table='fund_campaigns';raisedField='raised';goalField='goal';
+    }
+  }
+  if(!found){
+    var r3=await db('taasiya_posts',{query:'select=*&claim_code=eq.'+code});
+    if(r3.ok&&r3.data&&r3.data.length>0){
+      found=r3.data[0];table='taasiya_posts';raisedField='fund_raised';goalField='fund_goal';
+    }
+  }
+
   if(!found){
     document.getElementById('claim-result').classList.remove('on');
     toast('Code not found. Check the code and try again.');
     this.textContent='Look up';this.disabled=false;return;
   }
-  var table=found.type==='taasiya'?'taasiya_posts':found.type==='fund'?'fund_campaigns':'posts';
-  var raisedField=table==='fund_campaigns'?'raised':'fund_raised';
-  var goalField=table==='fund_campaigns'?'goal':'fund_goal';
-  var r=await db(table,{query:'select=*&id=eq.'+found.id});
-  if(r.ok&&r.data&&r.data[0]){
-    var d=r.data[0];
-    document.getElementById('cr-name').textContent=d.anon_name||'Anonymous';
-    document.getElementById('cr-txt').textContent=d.content||found.content;
-    document.getElementById('cr-raised').textContent=fmt(d[raisedField]||0);
-    document.getElementById('cr-goal').textContent=fmt(d[goalField]||found.goal);
-    var pctVal=d[goalField]>0?Math.min(100,Math.round(((d[raisedField]||0)/(d[goalField]))*100)):0;
-    document.getElementById('cr-bar').style.width=pctVal+'%';
-    document.getElementById('payout-msg').style.display='none';
-    document.getElementById('payout-btn').style.display='block';
-    document.getElementById('claim-result').classList.add('on');
-    found.raised=d[raisedField]||0;
-    localStorage.setItem('ummah_my_posts',JSON.stringify(posts));
-  } else {
-    toast('Could not find this campaign.');
-    document.getElementById('claim-result').classList.remove('on');
-  }
+
+  document.getElementById('cr-name').textContent=found.anon_name||'Anonymous';
+  document.getElementById('cr-txt').textContent=found.content||'';
+  document.getElementById('cr-raised').textContent=fmt(found[raisedField]||0);
+  document.getElementById('cr-goal').textContent=fmt(found[goalField]||0);
+  var pctVal=found[goalField]>0?Math.min(100,Math.round(((found[raisedField]||0)/(found[goalField]))*100)):0;
+  document.getElementById('cr-bar').style.width=pctVal+'%';
+  document.getElementById('payout-msg').style.display='none';
+  document.getElementById('payout-btn').style.display='block';
+  document.getElementById('claim-result').classList.add('on');
   this.textContent='Look up';this.disabled=false;
 });
 
