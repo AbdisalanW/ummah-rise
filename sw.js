@@ -1,4 +1,4 @@
-const CACHE = 'ummah-rise-v8';
+const CACHE = 'ummah-rise-v9';
 const ASSETS = [
   '/',
   '/index.html',
@@ -24,6 +24,32 @@ self.addEventListener('activate', function(e) {
     })
   );
   self.clients.claim();
+});
+
+self.addEventListener('push', function(e) {
+  var data = e.data ? e.data.json() : {};
+  var title = data.title || 'Ummah Rise';
+  var options = {
+    body: data.body || 'Someone interacted with your post',
+    icon: '/icon-192.png',
+    badge: '/icon-192.png',
+    data: { url: data.url || '/' },
+    vibrate: [200, 100, 200]
+  };
+  e.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener('notificationclick', function(e) {
+  e.notification.close();
+  var url = e.notification.data && e.notification.data.url ? e.notification.data.url : '/';
+  e.waitUntil(
+    clients.matchAll({ type: 'window' }).then(function(list) {
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].url.includes('ummahrise.site') && 'focus' in list[i]) return list[i].focus();
+      }
+      return clients.openWindow(url);
+    })
+  );
 });
 
 self.addEventListener('fetch', function(e) {

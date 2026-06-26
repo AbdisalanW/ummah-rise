@@ -609,7 +609,7 @@ document.getElementById('post-feed').addEventListener('click',async function(e){
     if(!p)return;
     var nl=(p.likes||0)+1;
     var r=await db('posts',{method:'PATCH',query:'id=eq.'+id,body:{likes:nl},prefer:'return=minimal'});
-    if(r.ok){p.likes=nl;lb.querySelector('.lkc').textContent=nl;lb.classList.add('liked');}
+    if(r.ok){p.likes=nl;lb.querySelector('.lkc').textContent=nl;lb.classList.add('liked');notifyPostOwner(id,'posts','Someone liked your post','Your post received a new heart');}
     return;
   }
   var rb=e.target.closest('.rep-btn');
@@ -629,6 +629,7 @@ async function sendReply(id){
     inp.value='';
     userStats.replies++;
     document.getElementById('s-replies').textContent=userStats.replies;
+    notifyPostOwner(id,'posts','New reply','Someone replied to your post anonymously');
     toast('Reply posted anonymously');
     await loadPosts();
     setTimeout(function(){var el=document.getElementById('reps-'+id);if(el)el.classList.add('on');},200);
@@ -719,6 +720,7 @@ document.getElementById('post-btn').addEventListener('click',async function(){
     document.getElementById('goal-grp').style.display='none';
     userStats.posts++;
     document.getElementById('s-posts').textContent=userStats.posts;
+    if(newPost)subscribeToPush(newPost.id,'posts');
     if(goal>0&&newPost){
       var code=generateClaimCode();
       saveMyPost({id:newPost.id,type:'post',code:code,content:txt,tag:tag,goal:goal,raised:0,created_at:newPost.created_at||new Date().toISOString()});
@@ -915,6 +917,7 @@ document.getElementById('taasiya-feed').addEventListener('click',async function(
       btn.querySelector('.dua-count').textContent=newDuas;
       btn.classList.add('sent');
       btn.innerHTML='&#10024; Dua sent <span class="dua-count">'+newDuas+'</span>';
+      notifyPostOwner(id,'taasiya_posts','Dua received','Someone sent a dua for you. You are not alone.');
       toast('May Allah grant them peace. Ameen.');
     }
   }
@@ -957,6 +960,7 @@ document.getElementById('taasiya-post-btn').addEventListener('click',async funct
     document.getElementById('taasiya-goal-grp').style.display='none';
     document.getElementById('taasiya-main').style.display='flex';
     document.getElementById('taasiya-compose').style.display='none';
+    if(newPost)subscribeToPush(newPost.id,'taasiya_posts');
     if(goal>0&&newPost){
       var code=generateClaimCode();
       saveMyPost({id:newPost.id,type:'taasiya',code:code,content:txt,grief_type:selectedGriefType,goal:goal,raised:0,created_at:newPost.created_at||new Date().toISOString()});
@@ -1189,6 +1193,50 @@ document.getElementById('payout-btn').addEventListener('click',async function(){
 
 renderMyPosts();
 refreshMyPostFunds();
+
+var VAPID_PUBLIC='BObHxNsGurCa_YHRZMHPoM1qORuI9fJEf7emm3APhGNmKpoynzTDjdMC1gkEwEnQyCZec9TMvdAUw0wKCB-Tf8w';
+
+function urlBase64ToUint8Array(base64String){
+  var padding='='.repeat((4-base64String.length%4)%4);
+  var base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  var raw=atob(base64);
+  var arr=new Uint8Array(raw.length);
+  for(var i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
+  return arr;
+}
+
+async function subscribeToPush(postId,postTable){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window))return null;
+  try{
+    var reg=await navigator.serviceWorker.ready;
+    var sub=await reg.pushManager.getSubscription();
+    if(!sub){
+      sub=await reg.pushManager.subscribe({
+        userVisibleOnly:true,
+        applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC)
+      });
+    }
+    await db('push_subscriptions',{
+      method:'POST',
+      body:{post_id:postId,post_table:postTable,subscription:sub.toJSON()},
+      prefer:'return=minimal'
+    });
+    return sub;
+  }catch(e){
+    console.log('Push subscription failed:',e);
+    return null;
+  }
+}
+
+async function notifyPostOwner(postId,postTable,title,body){
+  try{
+    await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/send-notification',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({post_id:postId,post_table:postTable,title:title,body:body})
+    });
+  }catch(e){}
+}
 
 var reportedPosts=JSON.parse(localStorage.getItem('ummah_reported')||'[]');
 document.addEventListener('click',function(e){
