@@ -266,18 +266,42 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       <div class="srow" style="border:none;"><div><div class="slbl">Privacy policy</div><div class="ssub">How we protect you</div></div><span class="sval">></span></div>
     </div>
   </div>
-  <div id="scr-taasiya" class="scr">
-    <div class="topbar"><div class="logo">Taasiya <span>&#9790;</span></div></div>
-    <div class="taasiya-hero">
-      <div class="taasiya-icon">&#9790;</div>
-      <h2>You are not alone in your grief</h2>
-      <p>Share what is on your heart. The community will send dua for you anonymously.</p>
+  <div id="scr-taasiya" class="scr" style="display:flex;flex-direction:column;height:100%;">
+    <div id="taasiya-main" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="topbar"><div class="logo">Taasiya <span>&#9790;</span></div></div>
+      <div class="taasiya-hero">
+        <div class="taasiya-icon">&#9790;</div>
+        <h2>You are not alone in your grief</h2>
+        <p>Share what is on your heart. The community will send dua for you anonymously.</p>
+      </div>
+      <div class="taasiya-verse">
+        <p>"Verily, with hardship comes ease."</p>
+        <span>Quran 94:6</span>
+      </div>
+      <div id="taasiya-feed" class="taasiya-feed"><div class="loading">Loading...</div></div>
+      <div style="padding:1rem 1.25rem;">
+        <button class="subbtn" id="taasiya-compose-btn" style="width:100%;">&#9790; Share your heart</button>
+      </div>
     </div>
-    <div class="taasiya-verse">
-      <p>"Verily, with hardship comes ease."</p>
-      <span>Quran 94:6</span>
+    <div id="taasiya-compose" class="cwrap" style="display:none;flex-direction:column;padding:1.25rem;">
+      <button id="taasiya-back-btn" style="background:none;border:none;color:var(--text2);font-size:14px;text-align:left;padding:0 0 1rem 0;cursor:pointer;">&larr; Back</button>
+      <div class="anote">&#128274; Your identity is never stored or revealed</div>
+      <div class="fgrp">
+        <label class="flbl">What type of grief?</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">
+          <button class="type-pill on" data-type="Loved one" style="padding:6px 14px;border-radius:var(--rpill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;">Loved one</button>
+          <button class="type-pill" data-type="Divorce" style="padding:6px 14px;border-radius:var(--rpill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;">Divorce</button>
+          <button class="type-pill" data-type="Loneliness" style="padding:6px 14px;border-radius:var(--rpill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;">Loneliness</button>
+          <button class="type-pill" data-type="Hardship" style="padding:6px 14px;border-radius:var(--rpill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;">Hardship</button>
+          <button class="type-pill" data-type="Other" style="padding:6px 14px;border-radius:var(--rpill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;">Other</button>
+        </div>
+      </div>
+      <div class="fgrp">
+        <label class="flbl">Share what is on your heart</label>
+        <textarea id="taasiya-txt" placeholder="You are safe here. No one knows who you are..." style="width:100%;min-height:120px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);padding:.75rem;font-size:14px;resize:vertical;"></textarea>
+      </div>
+      <button class="subbtn" id="taasiya-post-btn" style="width:100%;">Share anonymously</button>
     </div>
-    <div id="taasiya-feed" class="taasiya-feed"><div class="loading">Loading...</div></div>
   </div>
   <nav class="bnav">
     <button class="nb on" data-scr="home"><span class="ni" style="font-size:18px;">&#8962;</span><span class="nl">Community</span></button>
@@ -730,12 +754,12 @@ document.getElementById('taasiya-feed').addEventListener('click',async function(
 
 document.getElementById('taasiya-compose-btn').addEventListener('click',function(){
   document.getElementById('taasiya-main').style.display='none';
-  document.getElementById('taasiya-compose').classList.add('on');
+  document.getElementById('taasiya-compose').style.display='flex';
 });
 
 document.getElementById('taasiya-back-btn').addEventListener('click',function(){
   document.getElementById('taasiya-main').style.display='flex';
-  document.getElementById('taasiya-compose').classList.remove('on');
+  document.getElementById('taasiya-compose').style.display='none';
 });
 
 document.querySelectorAll('.type-pill').forEach(function(b){
@@ -757,7 +781,7 @@ document.getElementById('taasiya-post-btn').addEventListener('click',async funct
   if(r.ok){
     document.getElementById('taasiya-txt').value='';
     document.getElementById('taasiya-main').style.display='flex';
-    document.getElementById('taasiya-compose').classList.remove('on');
+    document.getElementById('taasiya-compose').style.display='none';
     toast('May Allah grant you ease. Ameen.');
     await loadTaasiya();
   } else {
