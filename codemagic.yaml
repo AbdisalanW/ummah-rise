@@ -1,0 +1,57 @@
+workflows:
+  ios-workflow:
+    name: Ummah Rise iOS
+    max_build_duration: 60
+    integrations:
+      app_store_connect: Ummah Rise
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.ummahrise.app
+      node: 20.17.0
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install dependencies
+        script: npm install
+      - name: Copy web files to www
+        script: |
+          mkdir -p www
+          cp index.html www/index.html
+          cp manifest.json www/manifest.json
+          cp sw.js www/sw.js
+          cp icon-192.png www/icon-192.png
+          cp icon-512.png www/icon-512.png
+      - name: Add iOS platform
+        script: npx cap add ios 2>/dev/null || echo "iOS already added"
+      - name: Sync Capacitor
+        script: npx cap sync ios
+      - name: Set app version
+        script: |
+          LATEST_BUILD=$(app-store-connect get-latest-app-store-build-number "com.ummahrise.app" --pre-release-version 1.0.0 2>/dev/null || echo "0")
+          agvtool new-version -all $(($LATEST_BUILD + 1)) || true
+      - name: Build iOS
+        script: |
+          xcode-project use-profiles
+          xcodebuild \
+            -workspace ios/App/App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -archivePath "$CM_BUILD_DIR/App.xcarchive" \
+            archive \
+            CODE_SIGN_STYLE=MANUAL
+      - name: Export IPA
+        script: |
+          xcodebuild \
+            -exportArchive \
+            -archivePath "$CM_BUILD_DIR/App.xcarchive" \
+            -exportOptionsPlist /Users/builder/export_options.plist \
+            -exportPath "$CM_BUILD_DIR/output"
+    artifacts:
+      - $CM_BUILD_DIR/output/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false
