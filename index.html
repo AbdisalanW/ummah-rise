@@ -208,7 +208,7 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
     <span class="pill">Marriage Fund</span>
   </div>
   <button class="btn-p" id="enter-btn">Enter the community</button>
-  <button class="btn-g" id="guest-btn">Browse as guest</button>
+  <button class="btn-g" id="guest-btn">Just browsing — skip intro</button>
 </div>
 <div id="app">
   <div id="scr-home" class="scr on">
@@ -246,7 +246,13 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       <div class="anote">&#128274; Your identity is never stored or revealed</div>
       <div class="fgrp">
         <label class="flbl">What is on your heart?</label>
-        <textarea id="ctxt" placeholder="Share freely. No one knows who you are. Marriage pressure, faith doubts, family struggles..."></textarea>
+        <textarea id="ctxt" placeholder="Share freely. No one knows who you are..."></textarea>
+        <div id="prompt-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+          <button type="button" class="prompt-chip" style="font-size:11px;padding:5px 11px;border-radius:var(--rpill);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;">My family won't let me marry who I love</button>
+          <button type="button" class="prompt-chip" style="font-size:11px;padding:5px 11px;border-radius:var(--rpill);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;">I'm struggling with my faith</button>
+          <button type="button" class="prompt-chip" style="font-size:11px;padding:5px 11px;border-radius:var(--rpill);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;">I feel so alone in this</button>
+          <button type="button" class="prompt-chip" style="font-size:11px;padding:5px 11px;border-radius:var(--rpill);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;">I need help affording my mahr</button>
+        </div>
       </div>
       <div class="fgrp">
         <label class="flbl">Topic</label>
@@ -399,7 +405,7 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
     <button class="nb on" data-scr="home"><span class="ni" style="font-size:18px;">&#8962;</span><span class="nl">Community</span></button>
     <button class="nb" data-scr="fund"><span class="ni" style="font-size:18px;">&#9825;</span><span class="nl">Fund</span></button>
     <button class="nb" data-scr="compose"><span class="ni" style="font-size:18px;">&#9998;</span><span class="nl">Share</span></button>
-    <button class="nb" data-scr="taasiya"><span class="ni" style="font-size:18px;">&#9790;</span><span class="nl">Taasiya</span></button>
+    <button class="nb" data-scr="taasiya"><span class="ni" style="font-size:18px;">&#9790;</span><span class="nl">Grief</span></button>
     <button class="nb" data-scr="profile"><span class="ni" style="font-size:18px;">&#9711;</span><span class="nl">Profile</span></button>
   </nav>
 </div>
@@ -415,7 +421,11 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       <button class="amt" data-amt="50">$50</button>
       <button class="amt" data-amt="100">$100</button>
     </div>
-    <button class="dgo" id="dgo-btn">Send $<span id="m-amt">25</span> - JazakAllah Khair</button>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;">
+      <span style="font-size:13px;color:var(--text3);">Other:</span>
+      <input type="number" id="custom-amt" placeholder="Enter amount" min="1" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:8px 12px;font-size:13px;color:var(--text);font-family:var(--sans);" />
+    </div>
+    <button class="dgo" id="dgo-btn">Send $<span id="m-amt">25</span> — JazakAllah Khair &#9825;</button>
     <button class="canbtn" id="cancel-btn">Cancel</button>
   </div>
 </div>
@@ -442,6 +452,30 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
   </div>
 </div>
 <div class="toast" id="toast"></div>
+
+<!-- Onboarding Modal -->
+<div class="mbg" id="onboard-modal" style="align-items:center;">
+  <div class="modal" style="border-radius:var(--radius);max-width:420px;padding:2rem 1.5rem;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:1rem;">&#9789;</div>
+    <h3 style="font-family:var(--serif);font-size:1.4rem;font-weight:400;margin-bottom:.5rem;">Welcome to Ummah Rise</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem;line-height:1.7;">A safe, anonymous space for Muslims to share struggles and support each other.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem;text-align:left;">
+      <div style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:12px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gdim);border:1px solid rgba(74,222,128,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;">1</div>
+        <div><div style="font-size:13px;font-weight:500;margin-bottom:2px;">Post anonymously</div><div style="font-size:12px;color:var(--text2);">Share your story. No name, no judgment.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:12px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gdim);border:1px solid rgba(74,222,128,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;">2</div>
+        <div><div style="font-size:13px;font-weight:500;margin-bottom:2px;">Receive community support</div><div style="font-size:12px;color:var(--text2);">Get advice, duas, and donations from the ummah.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:12px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gdim);border:1px solid rgba(74,222,128,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;">3</div>
+        <div><div style="font-size:13px;font-weight:500;margin-bottom:2px;">Claim your funds with a code</div><div style="font-size:12px;color:var(--text2);">If you raise money, a private claim code lets you request payout.</div></div>
+      </div>
+    </div>
+    <button class="btn-p" id="onboard-done-btn" style="max-width:100%;padding:13px 32px;">Got it — let's go</button>
+  </div>
+</div>
 </div>
 <script>
 var SURL='https://nzwbgzhlffnzbadggmwz.supabase.co/rest/v1/';
@@ -495,7 +529,7 @@ function showScr(name){
   if(name==='taasiya')loadTaasiya();
 }
 
-function enterApp(){
+function enterApp(showOnboard){
   document.getElementById('splash').style.display='none';
   var app=document.getElementById('app');
   app.style.display='flex';
@@ -508,10 +542,17 @@ function enterApp(){
   loadPosts();
   loadFunds();
   handleDonationReturn();
+  if(showOnboard&&!localStorage.getItem('ummah_onboarded')){
+    document.getElementById('onboard-modal').classList.add('on');
+  }
 }
 
-document.getElementById('enter-btn').addEventListener('click',enterApp);
-document.getElementById('guest-btn').addEventListener('click',enterApp);
+document.getElementById('enter-btn').addEventListener('click',function(){enterApp(true);});
+document.getElementById('guest-btn').addEventListener('click',function(){enterApp(false);});
+document.getElementById('onboard-done-btn').addEventListener('click',function(){
+  localStorage.setItem('ummah_onboarded','1');
+  document.getElementById('onboard-modal').classList.remove('on');
+});
 
 document.querySelectorAll('.nb').forEach(function(b){
   b.addEventListener('click',function(){showScr(this.getAttribute('data-scr'));});
@@ -765,7 +806,17 @@ document.querySelectorAll('.amt').forEach(function(b){
     document.querySelectorAll('.amt').forEach(function(x){x.classList.remove('on');});
     this.classList.add('on');
     document.getElementById('m-amt').textContent=modalAmt;
+    document.getElementById('custom-amt').value='';
   });
+});
+
+document.getElementById('custom-amt').addEventListener('input',function(){
+  var v=parseInt(this.value);
+  if(v>0){
+    modalAmt=v;
+    document.querySelectorAll('.amt').forEach(function(x){x.classList.remove('on');});
+    document.getElementById('m-amt').textContent=modalAmt;
+  }
 });
 
 document.getElementById('dgo-btn').addEventListener('click',async function(){
@@ -1193,6 +1244,15 @@ document.getElementById('payout-btn').addEventListener('click',async function(){
 
 renderMyPosts();
 refreshMyPostFunds();
+
+document.getElementById('prompt-chips').addEventListener('click',function(e){
+  var chip=e.target.closest('.prompt-chip');
+  if(!chip)return;
+  var txt=document.getElementById('ctxt');
+  txt.value=chip.textContent+' ';
+  txt.focus();
+  txt.setSelectionRange(txt.value.length,txt.value.length);
+});
 
 var VAPID_PUBLIC='BObHxNsGurCa_YHRZMHPoM1qORuI9fJEf7emm3APhGNmKpoynzTDjdMC1gkEwEnQyCZec9TMvdAUw0wKCB-Tf8w';
 
