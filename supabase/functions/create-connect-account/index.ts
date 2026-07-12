@@ -45,6 +45,51 @@ async function patchRow(table: string, id: string, body: Record<string, unknown>
   });
 }
 
+// This Stripe account was created under the newer Accounts v2 API (no v1
+// compatibility toggle available), which needs a raw call with a .preview
+// Stripe-Version header — the SDK doesn't wrap this resource yet. v1
+// endpoints (account_links, accounts.retrieve, transfers.create) remain
+// interoperable with v2-created accounts, so only this call differs.
+async function createV2RecipientAccount(code: string, table: string, rowId: string) {
+  const res = await fetch('https://api.stripe.com/v2/core/accounts', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${STRIPE_SECRET_KEY}`,
+      'Content-Type': 'application/json',
+      'Stripe-Version': '2025-03-31.preview',
+    },
+    body: JSON.stringify({
+      // Placeholder only — Stripe requires a contact_email to attach the
+      // recipient configuration, but we don't collect a real one from
+      // claimants. Their actual email (if any) is entered directly with
+      // Stripe during hosted onboarding, not stored by us.
+      contact_email: `claim-${code.toLowerCase()}@placeholder.ummahrise.site`,
+      display_name: `Ummah Rise claim ${code}`,
+      identity: { country: 'us' },
+      defaults: {
+        responsibilities: {
+          fees_collector: 'application',
+          losses_collector: 'application',
+        },
+      },
+      configuration: {
+        recipient: {
+          capabilities: {
+            stripe_balance: { stripe_transfers: { requested: true } },
+          },
+        },
+      },
+      dashboard: 'express',
+      metadata: { claim_code: code, table, row_id: rowId },
+    }),
+  });
+  if (!res.ok) {
+    throw new Error(`Stripe v2 account creation failed: ${await res.text()}`);
+  }
+  const account = await res.json();
+  return account.id as string;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
 
@@ -67,13 +112,7 @@ Deno.serve(async (req) => {
 
     let accountId = found.row.stripe_account_id as string | null;
     if (!accountId) {
-      const account = await stripe.accounts.create({
-        type: 'express',
-        capabilities: { transfers: { requested: true } },
-        business_type: 'individual',
-        metadata: { claim_code: code, table: found.table, row_id: found.row.id },
-      });
-      accountId = account.id;
+      accountId = await createV2RecipientAccount(code, found.table, found.row.id);
       await patchRow(found.table, found.row.id, { stripe_account_id: accountId });
     }
 
