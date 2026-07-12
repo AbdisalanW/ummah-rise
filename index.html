@@ -696,7 +696,7 @@ async function sendReply(id){
 
 async function loadFunds(){
   document.getElementById('fund-feed').innerHTML='<div class="loading">Loading...</div>';
-  var r=await db('fund_campaigns',{query:'select=*&order=created_at.desc'});
+  var r=await db('fund_campaigns',{query:'select=id,created_at,anon_name,content,goal,raised&order=created_at.desc'});
   if(!r.ok){document.getElementById('fund-feed').innerHTML='<div class="empty"><div class="empty-icon">!</div><p>Could not load campaigns.</p></div>';return;}
   fundsCache=r.data||[];
   renderFunds(fundsCache);
@@ -922,7 +922,7 @@ document.getElementById('taasiya-fund-toggle-row').addEventListener('click',func
 
 async function loadTaasiya(){
   document.getElementById('taasiya-feed').innerHTML='<div class="loading">Loading...</div>';
-  var r=await db('taasiya_posts',{query:'select=*&order=created_at.desc'});
+  var r=await db('taasiya_posts',{query:'select=id,created_at,anon_name,content,grief_type,duas,has_fund,fund_goal,fund_raised&order=created_at.desc'});
   if(!r.ok){
     document.getElementById('taasiya-feed').innerHTML='<div class="empty"><div class="empty-icon">&#9790;</div><p>Be the first to share. You are not alone.</p></div>';
     return;
@@ -1161,33 +1161,28 @@ document.getElementById('claim-lookup-btn').addEventListener('click',async funct
   this.textContent='Looking up...';
   this.disabled=true;
 
-  var found=null;
-  var table='';
-  var raisedField='';
-  var goalField='';
+  var lookup=null;
+  try{
+    var lr=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/claim-lookup',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({code:code})
+    });
+    lookup=await lr.json();
+  }catch(e){lookup=null;}
 
-  var r1=await db('posts',{query:'select=*&claim_code=eq.'+code});
-  if(r1.ok&&r1.data&&r1.data.length>0){
-    found=r1.data[0];table='posts';raisedField='fund_raised';goalField='fund_goal';
-  }
-  if(!found){
-    var r2=await db('fund_campaigns',{query:'select=*&claim_code=eq.'+code});
-    if(r2.ok&&r2.data&&r2.data.length>0){
-      found=r2.data[0];table='fund_campaigns';raisedField='raised';goalField='goal';
-    }
-  }
-  if(!found){
-    var r3=await db('taasiya_posts',{query:'select=*&claim_code=eq.'+code});
-    if(r3.ok&&r3.data&&r3.data.length>0){
-      found=r3.data[0];table='taasiya_posts';raisedField='fund_raised';goalField='fund_goal';
-    }
-  }
-
-  if(!found){
+  if(!lookup||!lookup.found){
     document.getElementById('claim-result').classList.remove('on');
     toast('Code not found. Check the code and try again.');
     this.textContent='Look up';this.disabled=false;return;
   }
+
+  var table=lookup.table;
+  var raisedField=lookup.raisedField;
+  var goalField=lookup.goalField;
+  var found={anon_name:lookup.anon_name,content:lookup.content};
+  found[raisedField]=lookup.raised;
+  found[goalField]=lookup.goal;
 
   window._claimResult={found:found,table:table,raisedField:raisedField,goalField:goalField,code:code};
   document.getElementById('cr-name').textContent=found.anon_name||'Anonymous';
