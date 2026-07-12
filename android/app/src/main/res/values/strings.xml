@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Ummah Rise</string>
+    <string name="title_activity_main">Ummah Rise</string>
+    <string name="package_name">com.ummahrise.app</string>
+    <string name="custom_url_scheme">com.ummahrise.app</string>
+</resources>
