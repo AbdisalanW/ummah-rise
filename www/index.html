@@ -166,12 +166,46 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
 .loading{text-align:center;padding:3rem 1.5rem;color:var(--text3);font-size:14px;}
 .empty{text-align:center;padding:3rem 1.5rem;color:var(--text3);}
 .empty-icon{font-size:2.5rem;margin-bottom:.75rem;}
+.claim-modal{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:250;display:none;align-items:center;justify-content:center;padding:1.25rem;}
+.claim-modal.on{display:flex;}
+.claim-box{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--radius);width:100%;max-width:400px;padding:2rem 1.5rem;text-align:center;}
+.claim-box h3{font-family:var(--serif);font-size:1.3rem;font-weight:400;margin-bottom:.5rem;}
+.claim-box p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:1.25rem;}
+.claim-code-display{background:var(--bg3);border:2px dashed rgba(74,222,128,.4);border-radius:var(--rsm);padding:1rem;margin-bottom:1rem;font-family:var(--sans);font-size:1.1rem;font-weight:600;color:var(--green);letter-spacing:.1em;user-select:all;}
+.claim-warn{font-size:12px;color:var(--rose);margin-bottom:1.25rem;line-height:1.6;}
+.my-posts-section{margin-top:1.25rem;}
+.my-post-card{background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:.9rem;margin-bottom:.75rem;}
+.my-post-card .mp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem;}
+.my-post-card .mp-type{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.04em;}
+.my-post-card .mp-date{font-size:11px;color:var(--text3);}
+.my-post-card .mp-txt{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:.5rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.my-post-card .mp-fund{display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--green);}
+.my-post-card .mp-code{font-size:11px;color:var(--text3);font-family:var(--sans);margin-top:.4rem;}
+.claim-input-wrap{display:flex;gap:8px;margin-top:.75rem;}
+.claim-input{flex:1;padding:10px 14px;font-size:14px;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);font-family:var(--sans);letter-spacing:.05em;}
+.claim-input:focus{outline:none;border-color:rgba(74,222,128,.4);}
+.claim-result{margin-top:1rem;padding:1rem;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);display:none;}
+.claim-result.on{display:block;}
+.claim-result .cr-name{font-size:14px;font-weight:500;margin-bottom:.3rem;}
+.claim-result .cr-txt{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:.75rem;}
+.claim-result .cr-fund{display:flex;justify-content:space-between;font-size:13px;margin-bottom:.5rem;}
+.payout-btn{width:100%;padding:12px;font-size:14px;font-weight:600;border:none;border-radius:var(--rsm);background:var(--green);color:#0d1a10;cursor:pointer;margin-top:.75rem;}
+.report-btn{font-size:11px;padding:4px 10px;border:1px solid var(--border);border-radius:var(--rpill);background:transparent;color:var(--text3);cursor:pointer;margin-left:auto;transition:all .2s;}
+.report-btn:hover{border-color:rgba(251,113,133,.4);color:var(--rose);}
+.report-btn.reported{color:var(--rose);border-color:rgba(251,113,133,.3);background:var(--rdim);pointer-events:none;}
 </style>
 </head>
 <body>
 <div class="shell">
 <div id="splash">
-  <div class="splash-icon">&#9789;</div>
+  <div class="splash-icon" style="background:none;border:none;width:88px;height:88px;position:relative;">
+    <svg viewBox="0 0 88 88" width="88" height="88" xmlns="http://www.w3.org/2000/svg">
+      <rect x="14" y="14" width="60" height="60" rx="12" fill="#4ade80"/>
+      <rect x="14" y="14" width="60" height="60" rx="12" fill="#22c55e" opacity="0.88" transform="rotate(45 44 44)"/>
+      <circle cx="44" cy="44" r="10" fill="#0d1a10"/>
+      <path d="M40,37 A9,9 0 1,1 50.5,51 A6,6 0 1,0 40,37 Z" fill="#4ade80"/>
+    </svg>
+  </div>
   <h1>Ummah <em>Rise</em></h1>
   <p>A safe, anonymous space for young Muslims to share, seek advice, and support each other including helping one another afford marriage.</p>
   <div class="pills">
@@ -181,12 +215,20 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
     <span class="pill">Marriage Fund</span>
   </div>
   <button class="btn-p" id="enter-btn">Enter the community</button>
-  <button class="btn-g" id="guest-btn">Browse as guest</button>
+  <button class="btn-g" id="guest-btn">Just browsing — skip intro</button>
 </div>
 <div id="app">
   <div id="scr-home" class="scr on">
     <div class="topbar">
-      <div class="logo">Ummah <span>Rise</span></div>
+      <div class="logo" style="display:flex;align-items:center;gap:8px;">
+        <svg viewBox="0 0 32 32" width="26" height="26" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+          <rect x="5" y="5" width="22" height="22" rx="5" fill="#4ade80"/>
+          <rect x="5" y="5" width="22" height="22" rx="5" fill="#22c55e" opacity="0.88" transform="rotate(45 16 16)"/>
+          <circle cx="16" cy="16" r="4" fill="#0d1a10"/>
+          <path d="M13.5,12.5 A4,4 0 1,1 19.5,19.5 A2.6,2.6 0 1,0 13.5,12.5 Z" fill="#4ade80"/>
+        </svg>
+        Ummah <span>Rise</span>
+      </div>
       <div class="badge">Live</div>
     </div>
     <div class="tabs">
@@ -194,6 +236,9 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       <button class="tab" data-tag="m">Marriage</button>
       <button class="tab" data-tag="me">Mental health</button>
       <button class="tab" data-tag="fa">Family</button>
+    </div>
+    <div style="padding:.75rem 1.25rem 0;">
+      <input class="claim-input" id="search-input" type="text" placeholder="Search posts..." style="width:100%;font-size:13px;padding:10px 14px;"/>
     </div>
     <div class="feed" id="post-feed"><div class="loading">Loading...</div></div>
   </div>
@@ -216,7 +261,13 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       <div class="anote">&#128274; Your identity is never stored or revealed</div>
       <div class="fgrp">
         <label class="flbl">What is on your heart?</label>
-        <textarea id="ctxt" placeholder="Share freely. No one knows who you are. Marriage pressure, faith doubts, family struggles..."></textarea>
+        <textarea id="ctxt" placeholder="Share freely. No one knows who you are..."></textarea>
+        <div id="prompt-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
+          <button type="button" class="prompt-chip" style="font-size:11px;padding:5px 11px;border-radius:var(--rpill);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;">My family won't let me marry who I love</button>
+          <button type="button" class="prompt-chip" style="font-size:11px;padding:5px 11px;border-radius:var(--rpill);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;">I'm struggling with my faith</button>
+          <button type="button" class="prompt-chip" style="font-size:11px;padding:5px 11px;border-radius:var(--rpill);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;">I feel so alone in this</button>
+          <button type="button" class="prompt-chip" style="font-size:11px;padding:5px 11px;border-radius:var(--rpill);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;">I need help affording my mahr</button>
+        </div>
       </div>
       <div class="fgrp">
         <label class="flbl">Topic</label>
@@ -260,30 +311,116 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
         <div class="pst"><div class="pstv" id="s-replies">0</div><div class="pstl">Replies</div></div>
         <div class="pst"><div class="pstv" id="s-donated">$0</div><div class="pstl">Donated</div></div>
       </div>
-      <div class="stitle">Settings</div>
+      <div class="stitle">My posts</div>
+      <div id="my-posts-list">
+        <div style="text-align:center;padding:1rem;color:var(--text3);font-size:13px;">No posts yet. Share something with the community.</div>
+      </div>
+
+      <div class="stitle" style="margin-top:1.25rem;">Claim funds</div>
+      <div style="padding:0 0 1rem;">
+        <p style="font-size:13px;color:var(--text2);margin-bottom:.75rem;line-height:1.6;">Have a claim code? Enter it below to check your fund status and request a payout.</p>
+        <div class="claim-input-wrap">
+          <input class="claim-input" id="claim-code-input" placeholder="e.g. UMMAH-7KX2-MFPQ" maxlength="14"/>
+          <button class="subbtn" id="claim-lookup-btn" style="width:auto;padding:10px 18px;margin-top:0;">Look up</button>
+        </div>
+        <div class="claim-result" id="claim-result">
+          <div class="cr-name" id="cr-name"></div>
+          <div class="cr-txt" id="cr-txt"></div>
+          <div class="cr-fund">
+            <span>Raised: <span id="cr-raised" style="color:var(--green);font-weight:600;">$0</span></span>
+            <span>Goal: <span id="cr-goal">$0</span></span>
+          </div>
+          <div class="pbar"><div class="pfill" id="cr-bar" style="width:0%"></div></div>
+          <div id="payout-form" style="margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;">
+            <p style="font-size:13px;color:var(--text);margin-bottom:.75rem;font-weight:500;">How would you like to receive your funds?</p>
+            <div class="fgrp" style="margin-bottom:.75rem;">
+              <label class="flbl">Payment method</label>
+              <div class="swrap">
+                <select id="payout-method" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 14px;font-size:13px;color:var(--text);font-family:var(--sans);appearance:none;cursor:pointer;">
+                  <option value="zelle">Zelle</option>
+                  <option value="cashapp">CashApp</option>
+                  <option value="venmo">Venmo</option>
+                  <option value="paypal">PayPal</option>
+                  <option value="bank">Bank transfer</option>
+                </select>
+                <span class="sarr">v</span>
+              </div>
+            </div>
+            <div class="fgrp" style="margin-bottom:.75rem;">
+              <label class="flbl" id="payout-detail-label">Zelle email or phone number</label>
+              <input class="ginput" id="payout-detail" placeholder="e.g. your@email.com or (555) 123-4567" style="font-size:13px;"/>
+            </div>
+            <div class="fgrp" style="margin-bottom:.75rem;">
+              <label class="flbl">Your name (for verification only — kept private)</label>
+              <input class="ginput" id="payout-name" placeholder="e.g. Ahmed M." style="font-size:13px;"/>
+            </div>
+            <button class="payout-btn" id="payout-btn">Request payout</button>
+          </div>
+          <p id="payout-msg" style="display:none;font-size:12px;color:var(--green);margin-top:.5rem;text-align:center;"></p>
+        </div>
+      </div>
+
+      <div class="stitle" style="margin-top:1rem;">Settings</div>
       <div class="srow"><div><div class="slbl">Anonymous name</div><div class="ssub">Randomly assigned</div></div><div class="sval" id="anon-nm">-</div></div>
       <div class="srow"><div><div class="slbl">Dark mode</div><div class="ssub">Always on</div></div><span class="sval">On</span></div>
       <div class="srow" style="border:none;"><div><div class="slbl">Privacy policy</div><div class="ssub">How we protect you</div></div><span class="sval">></span></div>
     </div>
   </div>
-  <div id="scr-taasiya" class="scr">
-    <div class="topbar"><div class="logo">Taasiya <span>&#9790;</span></div></div>
-    <div class="taasiya-hero">
-      <div class="taasiya-icon">&#9790;</div>
-      <h2>You are not alone in your grief</h2>
-      <p>Share what is on your heart. The community will send dua for you anonymously.</p>
+  <div id="scr-taasiya" class="scr" style="display:flex;flex-direction:column;height:100%;">
+    <div id="taasiya-main" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="topbar"><div class="logo">Taasiya <span>&#9790;</span></div></div>
+      <div class="taasiya-hero">
+        <div class="taasiya-icon">&#9790;</div>
+        <h2>You are not alone in your grief</h2>
+        <p>Share what is on your heart. The community will send dua for you anonymously.</p>
+      </div>
+      <div class="taasiya-verse">
+        <p>"Verily, with hardship comes ease."</p>
+        <span>Quran 94:6</span>
+      </div>
+      <div id="taasiya-feed" class="taasiya-feed"><div class="loading">Loading...</div></div>
+      <div style="padding:1rem 1.25rem;">
+        <button class="subbtn" id="taasiya-compose-btn" style="width:100%;">&#9790; Share your heart</button>
+      </div>
     </div>
-    <div class="taasiya-verse">
-      <p>"Verily, with hardship comes ease."</p>
-      <span>Quran 94:6</span>
+    <div id="taasiya-compose" class="cwrap" style="display:none;flex-direction:column;padding:1.25rem;">
+      <button id="taasiya-back-btn" style="background:none;border:none;color:var(--text2);font-size:14px;text-align:left;padding:0 0 1rem 0;cursor:pointer;">&larr; Back</button>
+      <div class="anote">&#128274; Your identity is never stored or revealed</div>
+      <div class="fgrp">
+        <label class="flbl">What type of grief?</label>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;">
+          <button class="type-pill on" data-type="Loved one" style="padding:6px 14px;border-radius:var(--rpill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;">Loved one</button>
+          <button class="type-pill" data-type="Divorce" style="padding:6px 14px;border-radius:var(--rpill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;">Divorce</button>
+          <button class="type-pill" data-type="Loneliness" style="padding:6px 14px;border-radius:var(--rpill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;">Loneliness</button>
+          <button class="type-pill" data-type="Hardship" style="padding:6px 14px;border-radius:var(--rpill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;">Hardship</button>
+          <button class="type-pill" data-type="Other" style="padding:6px 14px;border-radius:var(--rpill);border:1px solid var(--border);background:var(--card);color:var(--text);font-size:13px;cursor:pointer;">Other</button>
+        </div>
+      </div>
+      <div class="fgrp">
+        <label class="flbl">Share what is on your heart</label>
+        <textarea id="taasiya-txt" placeholder="You are safe here. No one knows who you are..." style="width:100%;min-height:120px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);padding:.75rem;font-size:14px;resize:vertical;"></textarea>
+      </div>
+      <div class="fgrp">
+        <div class="trow" id="taasiya-fund-toggle-row">
+          <div>
+            <div class="tlbl">Attach a fundraising goal</div>
+            <div class="tsub">Let the community help with costs (funeral, medical, etc.)</div>
+          </div>
+          <div class="tog" id="taasiya-fund-tog"><div class="tknob"></div></div>
+        </div>
+      </div>
+      <div id="taasiya-goal-grp" style="display:none;" class="fgrp">
+        <label class="flbl">Goal amount USD</label>
+        <input type="number" class="ginput" id="taasiya-goal-input" placeholder="e.g. 3000"/>
+      </div>
+      <button class="subbtn" id="taasiya-post-btn" style="width:100%;">Share anonymously</button>
     </div>
-    <div id="taasiya-feed" class="taasiya-feed"><div class="loading">Loading...</div></div>
   </div>
   <nav class="bnav">
     <button class="nb on" data-scr="home"><span class="ni" style="font-size:18px;">&#8962;</span><span class="nl">Community</span></button>
     <button class="nb" data-scr="fund"><span class="ni" style="font-size:18px;">&#9825;</span><span class="nl">Fund</span></button>
     <button class="nb" data-scr="compose"><span class="ni" style="font-size:18px;">&#9998;</span><span class="nl">Share</span></button>
-    <button class="nb" data-scr="taasiya"><span class="ni" style="font-size:18px;">&#9790;</span><span class="nl">Taasiya</span></button>
+    <button class="nb" data-scr="taasiya"><span class="ni" style="font-size:18px;">&#9790;</span><span class="nl">Grief</span></button>
     <button class="nb" data-scr="profile"><span class="ni" style="font-size:18px;">&#9711;</span><span class="nl">Profile</span></button>
   </nav>
 </div>
@@ -299,11 +436,61 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       <button class="amt" data-amt="50">$50</button>
       <button class="amt" data-amt="100">$100</button>
     </div>
-    <button class="dgo" id="dgo-btn">Send $<span id="m-amt">25</span> - JazakAllah Khair</button>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:.75rem;">
+      <span style="font-size:13px;color:var(--text3);">Other:</span>
+      <input type="number" id="custom-amt" placeholder="Enter amount" min="1" style="flex:1;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:8px 12px;font-size:13px;color:var(--text);font-family:var(--sans);" />
+    </div>
+    <button class="dgo" id="dgo-btn">Send $<span id="m-amt">25</span> — JazakAllah Khair &#9825;</button>
     <button class="canbtn" id="cancel-btn">Cancel</button>
   </div>
 </div>
+<div class="claim-modal" id="claim-modal">
+  <div class="claim-box">
+    <h3>Your claim code</h3>
+    <p>This is the <strong>only way</strong> to access your funds later. Save it somewhere safe.</p>
+    <div class="claim-code-display" id="claim-code-display">UMMAH-XXXX-XXXX</div>
+    <div class="claim-warn">This code will not be shown again. If you lose it, your funds cannot be recovered.</div>
+    <button class="subbtn" id="claim-copy-btn" style="margin-bottom:.75rem;">Copy code</button>
+    <div style="margin-bottom:.75rem;">
+      <p style="font-size:12px;color:var(--text2);margin-bottom:.5rem;">Or send it to your email as a backup:</p>
+      <div style="display:flex;gap:8px;">
+        <input class="claim-input" id="claim-email-input" type="email" placeholder="your@email.com" style="flex:1;font-size:13px;"/>
+        <button class="subbtn" id="claim-email-btn" style="width:auto;padding:10px 14px;margin-top:0;font-size:12px;">Send</button>
+      </div>
+      <p id="claim-email-msg" style="display:none;font-size:11px;color:var(--green);margin-top:.4rem;"></p>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);margin-bottom:.75rem;cursor:pointer;">
+      <input type="checkbox" id="claim-confirm-check" style="width:16px;height:16px;accent-color:var(--green);"/>
+      I have saved my claim code
+    </label>
+    <button class="subbtn" id="claim-dismiss-btn" disabled style="opacity:.4;">Continue</button>
+  </div>
+</div>
 <div class="toast" id="toast"></div>
+
+<!-- Onboarding Modal -->
+<div class="mbg" id="onboard-modal" style="align-items:center;">
+  <div class="modal" style="border-radius:var(--radius);max-width:420px;padding:2rem 1.5rem;text-align:center;">
+    <div style="font-size:2rem;margin-bottom:1rem;">&#9789;</div>
+    <h3 style="font-family:var(--serif);font-size:1.4rem;font-weight:400;margin-bottom:.5rem;">Welcome to Ummah Rise</h3>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:1.5rem;line-height:1.7;">A safe, anonymous space for Muslims to share struggles and support each other.</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:1.5rem;text-align:left;">
+      <div style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:12px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gdim);border:1px solid rgba(74,222,128,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;">1</div>
+        <div><div style="font-size:13px;font-weight:500;margin-bottom:2px;">Post anonymously</div><div style="font-size:12px;color:var(--text2);">Share your story. No name, no judgment.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:12px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gdim);border:1px solid rgba(74,222,128,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;">2</div>
+        <div><div style="font-size:13px;font-weight:500;margin-bottom:2px;">Receive community support</div><div style="font-size:12px;color:var(--text2);">Get advice, duas, and donations from the ummah.</div></div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:12px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--gdim);border:1px solid rgba(74,222,128,.3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--green);flex-shrink:0;">3</div>
+        <div><div style="font-size:13px;font-weight:500;margin-bottom:2px;">Claim your funds with a code</div><div style="font-size:12px;color:var(--text2);">If you raise money, a private claim code lets you request payout.</div></div>
+      </div>
+    </div>
+    <button class="btn-p" id="onboard-done-btn" style="max-width:100%;padding:13px 32px;">Got it — let's go</button>
+  </div>
+</div>
 </div>
 <script>
 var SURL='https://nzwbgzhlffnzbadggmwz.supabase.co/rest/v1/';
@@ -357,7 +544,7 @@ function showScr(name){
   if(name==='taasiya')loadTaasiya();
 }
 
-function enterApp(){
+function enterApp(showOnboard){
   document.getElementById('splash').style.display='none';
   var app=document.getElementById('app');
   app.style.display='flex';
@@ -370,10 +557,17 @@ function enterApp(){
   loadPosts();
   loadFunds();
   handleDonationReturn();
+  if(showOnboard&&!localStorage.getItem('ummah_onboarded')){
+    document.getElementById('onboard-modal').classList.add('on');
+  }
 }
 
-document.getElementById('enter-btn').addEventListener('click',enterApp);
-document.getElementById('guest-btn').addEventListener('click',enterApp);
+document.getElementById('enter-btn').addEventListener('click',function(){enterApp(true);});
+document.getElementById('guest-btn').addEventListener('click',function(){enterApp(false);});
+document.getElementById('onboard-done-btn').addEventListener('click',function(){
+  localStorage.setItem('ummah_onboarded','1');
+  document.getElementById('onboard-modal').classList.remove('on');
+});
 
 document.querySelectorAll('.nb').forEach(function(b){
   b.addEventListener('click',function(){showScr(this.getAttribute('data-scr'));});
@@ -422,6 +616,7 @@ function renderPosts(data){
         '<button class="pab like-btn" data-id="'+p.id+'">'+svgH()+'<span class="lkc">'+p.likes+'</span></button>'+
         '<button class="pab rep-btn" data-id="'+p.id+'">'+svgC()+'<span>'+reps.length+'</span></button>'+
         (hasFund?'<button class="supbtn don-btn" data-id="'+p.id+'" data-type="post">Support</button>':'')+
+        '<button class="report-btn flag-btn" data-id="'+p.id+'" data-table="posts">Report</button>'+
       '</div>'+
       (hasFund?
         '<div style="margin-top:.75rem;">'+
@@ -449,6 +644,19 @@ document.querySelectorAll('.tab').forEach(function(b){
   });
 });
 
+var searchTimeout=null;
+document.getElementById('search-input').addEventListener('input',function(){
+  var q=this.value.trim().toLowerCase();
+  clearTimeout(searchTimeout);
+  searchTimeout=setTimeout(function(){
+    if(!q){renderPosts(postsCache);return;}
+    var filtered=postsCache.filter(function(p){
+      return (p.content&&p.content.toLowerCase().includes(q))||(p.anon_name&&p.anon_name.toLowerCase().includes(q));
+    });
+    renderPosts(filtered);
+  },300);
+});
+
 document.getElementById('post-feed').addEventListener('click',async function(e){
   var lb=e.target.closest('.like-btn');
   if(lb){
@@ -457,7 +665,7 @@ document.getElementById('post-feed').addEventListener('click',async function(e){
     if(!p)return;
     var nl=(p.likes||0)+1;
     var r=await db('posts',{method:'PATCH',query:'id=eq.'+id,body:{likes:nl},prefer:'return=minimal'});
-    if(r.ok){p.likes=nl;lb.querySelector('.lkc').textContent=nl;lb.classList.add('liked');}
+    if(r.ok){p.likes=nl;lb.querySelector('.lkc').textContent=nl;lb.classList.add('liked');notifyPostOwner(id,'posts','Someone liked your post','Your post received a new heart');}
     return;
   }
   var rb=e.target.closest('.rep-btn');
@@ -477,6 +685,7 @@ async function sendReply(id){
     inp.value='';
     userStats.replies++;
     document.getElementById('s-replies').textContent=userStats.replies;
+    notifyPostOwner(id,'posts','New reply','Someone replied to your post anonymously');
     toast('Reply posted anonymously');
     await loadPosts();
     setTimeout(function(){var el=document.getElementById('reps-'+id);if(el)el.classList.add('on');},200);
@@ -550,13 +759,15 @@ document.getElementById('post-btn').addEventListener('click',async function(){
   var tag=document.getElementById('ctag').value;
   var goal=fundOn?(parseInt(document.getElementById('goal-input').value)||0):0;
   var nm=randName();
-  var body={anon_name:nm,content:txt,tag:tag,likes:0,has_fund:goal>0,fund_goal:goal,fund_raised:0};
+  var claimCode=goal>0?generateClaimCode():null;
+  var body={anon_name:nm,content:txt,tag:tag,likes:0,has_fund:goal>0,fund_goal:goal,fund_raised:0,claim_code:claimCode};
   this.textContent='Posting...';
   this.disabled=true;
-  var r=await db('posts',{method:'POST',body:body,prefer:'return=minimal'});
+  var r=await db('posts',{method:'POST',body:body,prefer:'return=representation'});
   if(r.ok){
+    var newPost=r.data&&r.data[0]?r.data[0]:null;
     if(goal>0){
-      await db('fund_campaigns',{method:'POST',body:{anon_name:nm,content:txt,goal:goal,raised:0},prefer:'return=minimal'});
+      await db('fund_campaigns',{method:'POST',body:{anon_name:nm,content:txt,goal:goal,raised:0,claim_code:claimCode},prefer:'return=minimal'});
     }
     document.getElementById('ctxt').value='';
     document.getElementById('goal-input').value='';
@@ -565,8 +776,15 @@ document.getElementById('post-btn').addEventListener('click',async function(){
     document.getElementById('goal-grp').style.display='none';
     userStats.posts++;
     document.getElementById('s-posts').textContent=userStats.posts;
-    showScr('home');
-    toast('Posted anonymously - JazakAllah Khair');
+    if(newPost)subscribeToPush(newPost.id,'posts');
+    if(goal>0&&newPost){
+      saveMyPost({id:newPost.id,type:'post',code:claimCode,content:txt,tag:tag,goal:goal,raised:0,created_at:newPost.created_at||new Date().toISOString()});
+      showClaimCode(claimCode);
+    } else {
+      if(newPost)saveMyPost({id:newPost.id,type:'post',code:null,content:txt,tag:tag,goal:0,raised:0,created_at:newPost.created_at||new Date().toISOString()});
+      showScr('home');
+      toast('Posted anonymously - JazakAllah Khair');
+    }
   } else {
     toast('Could not post - try again');
   }
@@ -584,6 +802,10 @@ function openModal(id,type){
     var fn=fundsCache.find(function(x){return x.id===id;});
     document.getElementById('m-name').textContent=fn?fn.anon_name:'this person';
     document.getElementById('m-desc').textContent=fn?fn.content:'';
+  } else if(type==='taasiya'){
+    var t=taasiyaCache.find(function(x){return x.id===id;});
+    document.getElementById('m-name').textContent=t?t.anon_name:'this person';
+    document.getElementById('m-desc').textContent=t?t.content:'Your donation goes directly to this person, anonymously.';
   } else {
     var p=postsCache.find(function(x){return x.id===id;});
     document.getElementById('m-name').textContent=p?p.anon_name:'this person';
@@ -598,17 +820,30 @@ document.querySelectorAll('.amt').forEach(function(b){
     document.querySelectorAll('.amt').forEach(function(x){x.classList.remove('on');});
     this.classList.add('on');
     document.getElementById('m-amt').textContent=modalAmt;
+    document.getElementById('custom-amt').value='';
   });
+});
+
+document.getElementById('custom-amt').addEventListener('input',function(){
+  var v=parseInt(this.value);
+  if(v>0){
+    modalAmt=v;
+    document.querySelectorAll('.amt').forEach(function(x){x.classList.remove('on');});
+    document.getElementById('m-amt').textContent=modalAmt;
+  }
 });
 
 document.getElementById('dgo-btn').addEventListener('click',async function(){
   if(!modalTarget)return;
   this.textContent='Opening payment...';
   this.disabled=true;
-  var campaignName='Marriage Fund';
+  var campaignName='Fund';
   if(modalTarget.type==='fund'){
     var fn=fundsCache.find(function(x){return x.id===modalTarget.id;});
     if(fn)campaignName=fn.anon_name+"'s Fund";
+  } else if(modalTarget.type==='taasiya'){
+    var t=taasiyaCache.find(function(x){return x.id===modalTarget.id;});
+    if(t)campaignName=t.anon_name+"'s Taasiya Fund";
   } else {
     var p=postsCache.find(function(x){return x.id===modalTarget.id;});
     if(p)campaignName=p.anon_name+"'s Fund";
@@ -643,6 +878,13 @@ async function handleDonationReturn(){
           var nr=Math.min(fn.goal,(fn.raised||0)+amount);
           await db('fund_campaigns',{method:'PATCH',query:'id=eq.'+campaign_id,body:{raised:nr},prefer:'return=minimal'});
         }
+      } else if(campaign_type==='taasiya'){
+        var r3=await db('taasiya_posts',{query:'select=id,fund_raised,fund_goal&id=eq.'+campaign_id});
+        if(r3.ok&&r3.data&&r3.data[0]){
+          var t3=r3.data[0];
+          var nr3=Math.min(t3.fund_goal,(t3.fund_raised||0)+amount);
+          await db('taasiya_posts',{method:'PATCH',query:'id=eq.'+campaign_id,body:{fund_raised:nr3},prefer:'return=minimal'});
+        }
       } else {
         var r2=await db('posts',{query:'select=id,fund_raised,fund_goal&id=eq.'+campaign_id});
         if(r2.ok&&r2.data&&r2.data[0]){
@@ -670,6 +912,13 @@ function closeModal(){document.getElementById('modal').classList.remove('on');mo
 // ── TAASIYA ──
 var taasiyaCache=[];
 var selectedGriefType='Loved one';
+var taasiyaFundOn=false;
+
+document.getElementById('taasiya-fund-toggle-row').addEventListener('click',function(){
+  taasiyaFundOn=!taasiyaFundOn;
+  document.getElementById('taasiya-fund-tog').classList.toggle('on',taasiyaFundOn);
+  document.getElementById('taasiya-goal-grp').style.display=taasiyaFundOn?'block':'none';
+});
 
 async function loadTaasiya(){
   document.getElementById('taasiya-feed').innerHTML='<div class="loading">Loading...</div>';
@@ -703,14 +952,24 @@ function renderTaasiya(data){
         '<span class="tcard-type">'+(t.grief_type||'Grief')+'</span>'+
       '</div>'+
       '<div class="tcard-txt">'+t.content+'</div>'+
+      (t.has_fund&&t.fund_goal>0?
+        '<div class="pfund">'+
+          '<div class="pbar"><div class="pfill" style="width:'+pct(t.fund_raised,t.fund_goal)+'%"></div></div>'+
+          '<div class="pstats"><span><span class="pval">'+fmt(t.fund_raised)+'</span> raised</span><span>Goal '+fmt(t.fund_goal)+'</span></div>'+
+        '</div>'+
+        '<button class="supbtn don-btn" data-id="'+t.id+'" data-type="taasiya" style="margin:.5rem 0;">Support</button>'
+      :'')+
       '<div class="tcard-acts">'+
         '<button class="dua-btn" data-id="'+t.id+'">&#10024; Send Dua <span class="dua-count">'+(t.duas||0)+'</span></button>'+
+        '<button class="report-btn flag-btn" data-id="'+t.id+'" data-table="taasiya_posts" style="margin-left:auto;">Report</button>'+
       '</div>';
     f.appendChild(div);
   });
 }
 
 document.getElementById('taasiya-feed').addEventListener('click',async function(e){
+  var db2=e.target.closest('.don-btn');
+  if(db2){openModal(db2.getAttribute('data-id'),'taasiya');return;}
   var btn=e.target.closest('.dua-btn');
   if(btn){
     var id=btn.getAttribute('data-id');
@@ -723,6 +982,7 @@ document.getElementById('taasiya-feed').addEventListener('click',async function(
       btn.querySelector('.dua-count').textContent=newDuas;
       btn.classList.add('sent');
       btn.innerHTML='&#10024; Dua sent <span class="dua-count">'+newDuas+'</span>';
+      notifyPostOwner(id,'taasiya_posts','Dua received','Someone sent a dua for you. You are not alone.');
       toast('May Allah grant them peace. Ameen.');
     }
   }
@@ -730,12 +990,12 @@ document.getElementById('taasiya-feed').addEventListener('click',async function(
 
 document.getElementById('taasiya-compose-btn').addEventListener('click',function(){
   document.getElementById('taasiya-main').style.display='none';
-  document.getElementById('taasiya-compose').classList.add('on');
+  document.getElementById('taasiya-compose').style.display='flex';
 });
 
 document.getElementById('taasiya-back-btn').addEventListener('click',function(){
   document.getElementById('taasiya-main').style.display='flex';
-  document.getElementById('taasiya-compose').classList.remove('on');
+  document.getElementById('taasiya-compose').style.display='none';
 });
 
 document.querySelectorAll('.type-pill').forEach(function(b){
@@ -750,21 +1010,330 @@ document.getElementById('taasiya-post-btn').addEventListener('click',async funct
   var txt=document.getElementById('taasiya-txt').value.trim();
   if(!txt){toast('Share what is on your heart');return;}
   var nm=randName();
-  var body={anon_name:nm,content:txt,grief_type:selectedGriefType,duas:0};
+  var goal=taasiyaFundOn?(parseInt(document.getElementById('taasiya-goal-input').value)||0):0;
+  var taasiyaClaimCode=goal>0?generateClaimCode():null;
+  var body={anon_name:nm,content:txt,grief_type:selectedGriefType,duas:0,has_fund:goal>0,fund_goal:goal,fund_raised:0,claim_code:taasiyaClaimCode};
   this.textContent='Sharing...';
   this.disabled=true;
-  var r=await db('taasiya_posts',{method:'POST',body:body,prefer:'return=minimal'});
+  var r=await db('taasiya_posts',{method:'POST',body:body,prefer:'return=representation'});
   if(r.ok){
+    var newPost=r.data&&r.data[0]?r.data[0]:null;
     document.getElementById('taasiya-txt').value='';
+    document.getElementById('taasiya-goal-input').value='';
+    taasiyaFundOn=false;
+    document.getElementById('taasiya-fund-tog').classList.remove('on');
+    document.getElementById('taasiya-goal-grp').style.display='none';
     document.getElementById('taasiya-main').style.display='flex';
-    document.getElementById('taasiya-compose').classList.remove('on');
-    toast('May Allah grant you ease. Ameen.');
+    document.getElementById('taasiya-compose').style.display='none';
+    if(newPost)subscribeToPush(newPost.id,'taasiya_posts');
+    if(goal>0&&newPost){
+      saveMyPost({id:newPost.id,type:'taasiya',code:taasiyaClaimCode,content:txt,grief_type:selectedGriefType,goal:goal,raised:0,created_at:newPost.created_at||new Date().toISOString()});
+      showClaimCode(taasiyaClaimCode);
+    } else {
+      if(newPost)saveMyPost({id:newPost.id,type:'taasiya',code:null,content:txt,grief_type:selectedGriefType,goal:0,raised:0,created_at:newPost.created_at||new Date().toISOString()});
+      toast('May Allah grant you ease. Ameen.');
+    }
     await loadTaasiya();
   } else {
     toast('Could not post. Try again.');
   }
   this.textContent='Share anonymously';
   this.disabled=false;
+});
+
+function generateClaimCode(){
+  var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  var seg=function(n){var s='';for(var i=0;i<n;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s;};
+  return 'UMMAH-'+seg(4)+'-'+seg(4);
+}
+
+function getMyPosts(){
+  try{return JSON.parse(localStorage.getItem('ummah_my_posts')||'[]');}catch(e){return[];}
+}
+
+function saveMyPost(post){
+  var posts=getMyPosts();
+  posts.unshift(post);
+  localStorage.setItem('ummah_my_posts',JSON.stringify(posts));
+  renderMyPosts();
+}
+
+function showClaimCode(code){
+  document.getElementById('claim-code-display').textContent=code;
+  document.getElementById('claim-modal').classList.add('on');
+}
+
+document.getElementById('claim-copy-btn').addEventListener('click',function(){
+  var code=document.getElementById('claim-code-display').textContent;
+  navigator.clipboard.writeText(code).then(function(){
+    toast('Code copied to clipboard');
+  }).catch(function(){
+    toast('Long-press the code to copy it');
+  });
+});
+
+document.getElementById('claim-confirm-check').addEventListener('change',function(){
+  var btn=document.getElementById('claim-dismiss-btn');
+  btn.disabled=!this.checked;
+  btn.style.opacity=this.checked?'1':'.4';
+});
+
+document.getElementById('claim-dismiss-btn').addEventListener('click',function(){
+  if(this.disabled)return;
+  document.getElementById('claim-modal').classList.remove('on');
+  document.getElementById('claim-confirm-check').checked=false;
+  this.disabled=true;this.style.opacity='.4';
+  showScr('home');
+  toast('Posted anonymously — JazakAllah Khair');
+});
+
+document.getElementById('claim-email-btn').addEventListener('click',async function(){
+  var email=document.getElementById('claim-email-input').value.trim();
+  if(!email||!email.includes('@')){toast('Enter a valid email');return;}
+  var code=document.getElementById('claim-code-display').textContent;
+  this.textContent='Sending...';this.disabled=true;
+  try{
+    var res=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/payout-request',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        claim_code:code,
+        anon_name:'Claim Code Backup',
+        content:'Your Ummah Rise claim code is: '+code+'. Keep this email safe — you will need this code to claim your funds.',
+        raised:0,goal:0,table:'email-backup',
+        recipient_email:email
+      })
+    });
+    var msg=document.getElementById('claim-email-msg');
+    msg.textContent='Code sent to '+email;
+    msg.style.display='block';
+    toast('Claim code sent to your email');
+  }catch(e){
+    toast('Could not send email. Copy the code instead.');
+  }
+  this.textContent='Send';this.disabled=false;
+});
+
+function renderMyPosts(){
+  var posts=getMyPosts();
+  var el=document.getElementById('my-posts-list');
+  if(!posts||posts.length===0){
+    el.innerHTML='<div style="text-align:center;padding:1rem;color:var(--text3);font-size:13px;">No posts yet. Share something with the community.</div>';
+    return;
+  }
+  el.innerHTML='';
+  posts.forEach(function(p){
+    var d=document.createElement('div');
+    d.className='my-post-card';
+    var typeLabel=p.type==='taasiya'?(p.grief_type||'Taasiya'):(p.tag==='m'?'Marriage':p.tag==='fa'?'Family':p.tag==='fai'?'Faith':p.tag==='me'?'Mental health':p.tag==='fi'?'Finance':'Post');
+    var dateStr=p.created_at?new Date(p.created_at).toLocaleDateString():'';
+    var fundHtml='';
+    if(p.goal>0){
+      fundHtml='<div class="mp-fund"><span>Raised: '+fmt(p.raised||0)+'</span><span>Goal: '+fmt(p.goal)+'</span></div>';
+      if(p.code)fundHtml+='<div class="mp-code">Claim code: '+p.code+'</div>';
+    }
+    d.innerHTML='<div class="mp-top"><span class="mp-type">'+typeLabel+'</span><span class="mp-date">'+dateStr+'</span></div><div class="mp-txt">'+p.content+'</div>'+fundHtml;
+    el.appendChild(d);
+  });
+}
+
+async function refreshMyPostFunds(){
+  var posts=getMyPosts();
+  var changed=false;
+  for(var i=0;i<posts.length;i++){
+    var p=posts[i];
+    if(p.goal>0){
+      var table=p.type==='taasiya'?'taasiya_posts':p.type==='fund'?'fund_campaigns':'posts';
+      var field=table==='fund_campaigns'?'raised':'fund_raised';
+      var r=await db(table,{query:'select=id,'+field+'&id=eq.'+p.id});
+      if(r.ok&&r.data&&r.data[0]){
+        var newRaised=r.data[0][field]||0;
+        if(newRaised!==p.raised){p.raised=newRaised;changed=true;}
+      }
+    }
+  }
+  if(changed){localStorage.setItem('ummah_my_posts',JSON.stringify(posts));renderMyPosts();}
+}
+
+document.getElementById('claim-lookup-btn').addEventListener('click',async function(){
+  var code=document.getElementById('claim-code-input').value.trim().toUpperCase();
+  if(!code||code.length<10){toast('Enter a valid claim code');return;}
+  this.textContent='Looking up...';
+  this.disabled=true;
+
+  var found=null;
+  var table='';
+  var raisedField='';
+  var goalField='';
+
+  var r1=await db('posts',{query:'select=*&claim_code=eq.'+code});
+  if(r1.ok&&r1.data&&r1.data.length>0){
+    found=r1.data[0];table='posts';raisedField='fund_raised';goalField='fund_goal';
+  }
+  if(!found){
+    var r2=await db('fund_campaigns',{query:'select=*&claim_code=eq.'+code});
+    if(r2.ok&&r2.data&&r2.data.length>0){
+      found=r2.data[0];table='fund_campaigns';raisedField='raised';goalField='goal';
+    }
+  }
+  if(!found){
+    var r3=await db('taasiya_posts',{query:'select=*&claim_code=eq.'+code});
+    if(r3.ok&&r3.data&&r3.data.length>0){
+      found=r3.data[0];table='taasiya_posts';raisedField='fund_raised';goalField='fund_goal';
+    }
+  }
+
+  if(!found){
+    document.getElementById('claim-result').classList.remove('on');
+    toast('Code not found. Check the code and try again.');
+    this.textContent='Look up';this.disabled=false;return;
+  }
+
+  window._claimResult={found:found,table:table,raisedField:raisedField,goalField:goalField,code:code};
+  document.getElementById('cr-name').textContent=found.anon_name||'Anonymous';
+  document.getElementById('cr-txt').textContent=found.content||'';
+  document.getElementById('cr-raised').textContent=fmt(found[raisedField]||0);
+  document.getElementById('cr-goal').textContent=fmt(found[goalField]||0);
+  var pctVal=found[goalField]>0?Math.min(100,Math.round(((found[raisedField]||0)/(found[goalField]))*100)):0;
+  document.getElementById('cr-bar').style.width=pctVal+'%';
+  document.getElementById('payout-msg').style.display='none';
+  document.getElementById('payout-btn').style.display='block';
+  document.getElementById('payout-btn').disabled=false;
+  document.getElementById('payout-btn').textContent='Request payout';
+  document.getElementById('claim-result').classList.add('on');
+  this.textContent='Look up';this.disabled=false;
+});
+
+var payoutLabels={zelle:'Zelle email or phone number',cashapp:'CashApp $cashtag',venmo:'Venmo @username',paypal:'PayPal email',bank:'Bank name + last 4 digits of account'};
+var payoutPlaceholders={zelle:'e.g. your@email.com or (555) 123-4567',cashapp:'e.g. $YourName',venmo:'e.g. @YourName',paypal:'e.g. your@email.com',bank:'e.g. Chase ****1234'};
+document.getElementById('payout-method').addEventListener('change',function(){
+  var m=this.value;
+  document.getElementById('payout-detail-label').textContent=payoutLabels[m]||'Details';
+  document.getElementById('payout-detail').placeholder=payoutPlaceholders[m]||'';
+});
+
+document.getElementById('payout-btn').addEventListener('click',async function(){
+  if(!window._claimResult)return;
+  var cr=window._claimResult;
+  var method=document.getElementById('payout-method').value;
+  var detail=document.getElementById('payout-detail').value.trim();
+  var payoutName=document.getElementById('payout-name').value.trim();
+  if(!detail){toast('Enter your payment details');return;}
+  if(!payoutName){toast('Enter your name for verification');return;}
+  this.textContent='Sending request...';
+  this.disabled=true;
+  try{
+    var res=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/payout-request',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        claim_code:cr.code,
+        anon_name:cr.found.anon_name||'Anonymous',
+        content:cr.found.content||'',
+        raised:cr.found[cr.raisedField]||0,
+        goal:cr.found[cr.goalField]||0,
+        table:cr.table,
+        payout_method:method,
+        payout_detail:detail,
+        payout_name:payoutName
+      })
+    });
+    var data=await res.json();
+    if(data.success){
+      this.style.display='none';
+      var msg=document.getElementById('payout-msg');
+      msg.textContent='Payout request sent! We will review and process within 48 hours. JazakAllah Khair.';
+      msg.style.display='block';
+      toast('Payout request submitted');
+    } else {
+      this.textContent='Request payout';this.disabled=false;
+      toast('Could not send request. Try again.');
+    }
+  }catch(e){
+    this.textContent='Request payout';this.disabled=false;
+    toast('Could not send request. Try again.');
+  }
+});
+
+renderMyPosts();
+refreshMyPostFunds();
+
+document.getElementById('prompt-chips').addEventListener('click',function(e){
+  var chip=e.target.closest('.prompt-chip');
+  if(!chip)return;
+  var txt=document.getElementById('ctxt');
+  txt.value=chip.textContent+' ';
+  txt.focus();
+  txt.setSelectionRange(txt.value.length,txt.value.length);
+});
+
+var VAPID_PUBLIC='BObHxNsGurCa_YHRZMHPoM1qORuI9fJEf7emm3APhGNmKpoynzTDjdMC1gkEwEnQyCZec9TMvdAUw0wKCB-Tf8w';
+
+function urlBase64ToUint8Array(base64String){
+  var padding='='.repeat((4-base64String.length%4)%4);
+  var base64=(base64String+padding).replace(/-/g,'+').replace(/_/g,'/');
+  var raw=atob(base64);
+  var arr=new Uint8Array(raw.length);
+  for(var i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
+  return arr;
+}
+
+async function subscribeToPush(postId,postTable){
+  if(!('serviceWorker' in navigator)||!('PushManager' in window))return null;
+  try{
+    var reg=await navigator.serviceWorker.ready;
+    var sub=await reg.pushManager.getSubscription();
+    if(!sub){
+      sub=await reg.pushManager.subscribe({
+        userVisibleOnly:true,
+        applicationServerKey:urlBase64ToUint8Array(VAPID_PUBLIC)
+      });
+    }
+    await db('push_subscriptions',{
+      method:'POST',
+      body:{post_id:postId,post_table:postTable,subscription:sub.toJSON()},
+      prefer:'return=minimal'
+    });
+    return sub;
+  }catch(e){
+    console.log('Push subscription failed:',e);
+    return null;
+  }
+}
+
+async function notifyPostOwner(postId,postTable,title,body){
+  try{
+    await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/send-notification',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({post_id:postId,post_table:postTable,title:title,body:body})
+    });
+  }catch(e){}
+}
+
+var reportedPosts=JSON.parse(localStorage.getItem('ummah_reported')||'[]');
+document.addEventListener('click',function(e){
+  var btn=e.target.closest('.flag-btn');
+  if(!btn)return;
+  var id=btn.getAttribute('data-id');
+  var table=btn.getAttribute('data-table');
+  if(reportedPosts.includes(id)){toast('Already reported');return;}
+  if(!confirm('Report this post for inappropriate content?'))return;
+  reportedPosts.push(id);
+  localStorage.setItem('ummah_reported',JSON.stringify(reportedPosts));
+  btn.textContent='Reported';
+  btn.classList.add('reported');
+  toast('Report submitted. JazakAllah Khair.');
+  fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/payout-request',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      claim_code:'REPORT',
+      anon_name:'Content Report',
+      content:'Post ID: '+id+' in table: '+table+' has been flagged by a user for review.',
+      raised:0,goal:0,table:'report'
+    })
+  }).catch(function(){});
 });
 
 </script>
