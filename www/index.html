@@ -332,29 +332,10 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
           </div>
           <div class="pbar"><div class="pfill" id="cr-bar" style="width:0%"></div></div>
           <div id="payout-form" style="margin-top:1rem;border-top:1px solid var(--border);padding-top:1rem;">
-            <p style="font-size:13px;color:var(--text);margin-bottom:.75rem;font-weight:500;">How would you like to receive your funds?</p>
-            <div class="fgrp" style="margin-bottom:.75rem;">
-              <label class="flbl">Payment method</label>
-              <div class="swrap">
-                <select id="payout-method" style="width:100%;background:var(--card);border:1px solid var(--border);border-radius:var(--rsm);padding:10px 14px;font-size:13px;color:var(--text);font-family:var(--sans);appearance:none;cursor:pointer;">
-                  <option value="zelle">Zelle</option>
-                  <option value="cashapp">CashApp</option>
-                  <option value="venmo">Venmo</option>
-                  <option value="paypal">PayPal</option>
-                  <option value="bank">Bank transfer</option>
-                </select>
-                <span class="sarr">v</span>
-              </div>
-            </div>
-            <div class="fgrp" style="margin-bottom:.75rem;">
-              <label class="flbl" id="payout-detail-label">Zelle email or phone number</label>
-              <input class="ginput" id="payout-detail" placeholder="e.g. your@email.com or (555) 123-4567" style="font-size:13px;"/>
-            </div>
-            <div class="fgrp" style="margin-bottom:.75rem;">
-              <label class="flbl">Your name (for verification only — kept private)</label>
-              <input class="ginput" id="payout-name" placeholder="e.g. Ahmed M." style="font-size:13px;"/>
-            </div>
-            <button class="payout-btn" id="payout-btn">Request payout</button>
+            <p style="font-size:13px;color:var(--text2);margin-bottom:.75rem;line-height:1.6;">Funds are sent through Stripe. You'll securely enter your own bank details directly with Stripe — Ummah Rise never sees or stores them.</p>
+            <button class="payout-btn" id="connect-btn">Connect a bank account</button>
+            <p id="connect-status-msg" style="display:none;font-size:12px;color:var(--text2);margin-top:.6rem;text-align:center;"></p>
+            <button class="payout-btn" id="transfer-btn" style="display:none;margin-top:.6rem;">Send funds to my account</button>
           </div>
           <p id="payout-msg" style="display:none;font-size:12px;color:var(--green);margin-top:.5rem;text-align:center;"></p>
         </div>
@@ -567,6 +548,7 @@ function enterApp(showOnboard){
   loadPosts();
   loadFunds();
   handleDonationReturn();
+  handleConnectReturn();
   if(showOnboard&&!localStorage.getItem('ummah_onboarded')){
     document.getElementById('onboard-modal').classList.add('on');
   }
@@ -773,7 +755,7 @@ document.getElementById('post-btn').addEventListener('click',async function(){
   var body={anon_name:nm,content:txt,tag:tag,likes:0,has_fund:goal>0,fund_goal:goal,fund_raised:0,claim_code:claimCode};
   this.textContent='Posting...';
   this.disabled=true;
-  var r=await db('posts',{method:'POST',body:body,prefer:'return=representation'});
+  var r=await db('posts',{method:'POST',query:'select=id,created_at,anon_name,content,tag,likes,has_fund,fund_goal,fund_raised',body:body,prefer:'return=representation'});
   if(r.ok){
     var newPost=r.data&&r.data[0]?r.data[0]:null;
     if(goal>0){
@@ -877,42 +859,31 @@ document.getElementById('dgo-btn').addEventListener('click',async function(){
 async function handleDonationReturn(){
   var params=new URLSearchParams(window.location.search);
   if(params.get('donated')==='true'){
-    var campaign_id=params.get('campaign_id');
     var campaign_type=params.get('campaign_type')||'fund';
-    var amount=parseInt(params.get('amount'))||0;
-    if(campaign_id&&amount>0){
-      if(campaign_type==='fund'){
-        var r=await db('fund_campaigns',{query:'select=id,raised,goal&id=eq.'+campaign_id});
-        if(r.ok&&r.data&&r.data[0]){
-          var fn=r.data[0];
-          var nr=Math.min(fn.goal,(fn.raised||0)+amount);
-          await db('fund_campaigns',{method:'PATCH',query:'id=eq.'+campaign_id,body:{raised:nr},prefer:'return=minimal'});
-        }
-      } else if(campaign_type==='taasiya'){
-        var r3=await db('taasiya_posts',{query:'select=id,fund_raised,fund_goal&id=eq.'+campaign_id});
-        if(r3.ok&&r3.data&&r3.data[0]){
-          var t3=r3.data[0];
-          var nr3=Math.min(t3.fund_goal,(t3.fund_raised||0)+amount);
-          await db('taasiya_posts',{method:'PATCH',query:'id=eq.'+campaign_id,body:{fund_raised:nr3},prefer:'return=minimal'});
-        }
-      } else {
-        var r2=await db('posts',{query:'select=id,fund_raised,fund_goal&id=eq.'+campaign_id});
-        if(r2.ok&&r2.data&&r2.data[0]){
-          var p2=r2.data[0];
-          var nr2=Math.min(p2.fund_goal,(p2.fund_raised||0)+amount);
-          await db('posts',{method:'PATCH',query:'id=eq.'+campaign_id,body:{fund_raised:nr2},prefer:'return=minimal'});
-        }
-      }
-      userStats.donated+=amount;
-      document.getElementById('s-donated').textContent='$'+userStats.donated;
-      toast('JazakAllah Khair! Your donation was received ♥');
-    }
+    // The donation itself is already credited server-side by the Stripe
+    // webhook (verified against the real payment) by the time this redirect
+    // lands, so we just refresh the relevant feed rather than trust
+    // anything from the URL.
+    toast('JazakAllah Khair! Your donation was received ♥');
+    if(campaign_type==='fund')loadFunds();
+    else if(campaign_type==='taasiya')loadTaasiya();
+    else loadPosts();
     window.history.replaceState({},'',window.location.pathname);
   }
   if(params.get('cancelled')==='true'){
     toast('Donation cancelled.');
     window.history.replaceState({},'',window.location.pathname);
   }
+}
+
+function handleConnectReturn(){
+  var params=new URLSearchParams(window.location.search);
+  var code=params.get('connect_code');
+  if(!code)return;
+  window.history.replaceState({},'',window.location.pathname);
+  showScr('profile');
+  document.getElementById('claim-code-input').value=code;
+  document.getElementById('claim-lookup-btn').click();
 }
 
 document.getElementById('cancel-btn').addEventListener('click',closeModal);
@@ -1025,7 +996,7 @@ document.getElementById('taasiya-post-btn').addEventListener('click',async funct
   var body={anon_name:nm,content:txt,grief_type:selectedGriefType,duas:0,has_fund:goal>0,fund_goal:goal,fund_raised:0,claim_code:taasiyaClaimCode};
   this.textContent='Sharing...';
   this.disabled=true;
-  var r=await db('taasiya_posts',{method:'POST',body:body,prefer:'return=representation'});
+  var r=await db('taasiya_posts',{method:'POST',query:'select=id,created_at,anon_name,content,grief_type,duas,has_fund,fund_goal,fund_raised',body:body,prefer:'return=representation'});
   if(r.ok){
     var newPost=r.data&&r.data[0]?r.data[0]:null;
     document.getElementById('taasiya-txt').value='';
@@ -1202,61 +1173,100 @@ document.getElementById('claim-lookup-btn').addEventListener('click',async funct
   var pctVal=found[goalField]>0?Math.min(100,Math.round(((found[raisedField]||0)/(found[goalField]))*100)):0;
   document.getElementById('cr-bar').style.width=pctVal+'%';
   document.getElementById('payout-msg').style.display='none';
-  document.getElementById('payout-btn').style.display='block';
-  document.getElementById('payout-btn').disabled=false;
-  document.getElementById('payout-btn').textContent='Request payout';
+  document.getElementById('connect-btn').style.display='block';
+  document.getElementById('connect-btn').disabled=false;
+  document.getElementById('connect-btn').textContent='Connect a bank account';
+  document.getElementById('transfer-btn').style.display='none';
+  document.getElementById('connect-status-msg').style.display='none';
   document.getElementById('claim-result').classList.add('on');
   this.textContent='Look up';this.disabled=false;
+  refreshConnectStatus(code);
 });
 
-var payoutLabels={zelle:'Zelle email or phone number',cashapp:'CashApp $cashtag',venmo:'Venmo @username',paypal:'PayPal email',bank:'Bank name + last 4 digits of account'};
-var payoutPlaceholders={zelle:'e.g. your@email.com or (555) 123-4567',cashapp:'e.g. $YourName',venmo:'e.g. @YourName',paypal:'e.g. your@email.com',bank:'e.g. Chase ****1234'};
-document.getElementById('payout-method').addEventListener('change',function(){
-  var m=this.value;
-  document.getElementById('payout-detail-label').textContent=payoutLabels[m]||'Details';
-  document.getElementById('payout-detail').placeholder=payoutPlaceholders[m]||'';
-});
-
-document.getElementById('payout-btn').addEventListener('click',async function(){
-  if(!window._claimResult)return;
-  var cr=window._claimResult;
-  var method=document.getElementById('payout-method').value;
-  var detail=document.getElementById('payout-detail').value.trim();
-  var payoutName=document.getElementById('payout-name').value.trim();
-  if(!detail){toast('Enter your payment details');return;}
-  if(!payoutName){toast('Enter your name for verification');return;}
-  this.textContent='Sending request...';
-  this.disabled=true;
+async function refreshConnectStatus(code){
+  var statusMsg=document.getElementById('connect-status-msg');
+  var connectBtn=document.getElementById('connect-btn');
+  var transferBtn=document.getElementById('transfer-btn');
+  var payoutMsg=document.getElementById('payout-msg');
   try{
-    var res=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/payout-request',{
+    var res=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/connect-status',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        claim_code:cr.code,
-        anon_name:cr.found.anon_name||'Anonymous',
-        content:cr.found.content||'',
-        raised:cr.found[cr.raisedField]||0,
-        goal:cr.found[cr.goalField]||0,
-        table:cr.table,
-        payout_method:method,
-        payout_detail:detail,
-        payout_name:payoutName
-      })
+      body:JSON.stringify({code:code})
+    });
+    var s=await res.json();
+    if(!res.ok||s.error)return;
+
+    if(s.alreadyTransferred){
+      connectBtn.style.display='none';
+      transferBtn.style.display='none';
+      statusMsg.style.display='none';
+      payoutMsg.textContent='Funds already sent to your account. JazakAllah Khair.';
+      payoutMsg.style.display='block';
+    } else if(s.payoutsEnabled){
+      connectBtn.style.display='none';
+      transferBtn.style.display='block';
+      statusMsg.textContent='Your account is connected and ready.';
+      statusMsg.style.display='block';
+    } else if(s.connected){
+      connectBtn.textContent='Finish connecting your account';
+      connectBtn.style.display='block';
+      transferBtn.style.display='none';
+      statusMsg.textContent='Almost done — Stripe still needs a bit more info from you.';
+      statusMsg.style.display='block';
+    } else {
+      connectBtn.textContent='Connect a bank account';
+      connectBtn.style.display='block';
+      transferBtn.style.display='none';
+      statusMsg.style.display='none';
+    }
+  }catch(e){}
+}
+
+document.getElementById('connect-btn').addEventListener('click',async function(){
+  if(!window._claimResult)return;
+  this.textContent='Opening Stripe...';
+  this.disabled=true;
+  try{
+    var res=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/create-connect-account',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({code:window._claimResult.code})
+    });
+    var data=await res.json();
+    if(data.url){window.location.href=data.url;}
+    else{toast('Could not start setup. Try again.');this.textContent='Connect a bank account';this.disabled=false;}
+  }catch(e){
+    toast('Could not start setup. Try again.');
+    this.textContent='Connect a bank account';this.disabled=false;
+  }
+});
+
+document.getElementById('transfer-btn').addEventListener('click',async function(){
+  if(!window._claimResult)return;
+  this.textContent='Sending...';
+  this.disabled=true;
+  try{
+    var res=await fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/create-transfer',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({code:window._claimResult.code})
     });
     var data=await res.json();
     if(data.success){
       this.style.display='none';
+      document.getElementById('connect-status-msg').style.display='none';
       var msg=document.getElementById('payout-msg');
-      msg.textContent='Payout request sent! We will review and process within 48 hours. JazakAllah Khair.';
+      msg.textContent='$'+data.amount+' sent to your account. JazakAllah Khair!';
       msg.style.display='block';
-      toast('Payout request submitted');
+      toast('Funds sent');
     } else {
-      this.textContent='Request payout';this.disabled=false;
-      toast('Could not send request. Try again.');
+      toast(data.error||'Could not send funds. Try again.');
+      this.textContent='Send funds to my account';this.disabled=false;
     }
   }catch(e){
-    this.textContent='Request payout';this.disabled=false;
-    toast('Could not send request. Try again.');
+    toast('Could not send funds. Try again.');
+    this.textContent='Send funds to my account';this.disabled=false;
   }
 });
 

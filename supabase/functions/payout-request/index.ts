@@ -29,7 +29,7 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { claim_code, anon_name, content, raised, goal, table, payout_method, payout_detail, payout_name, recipient_email } = body;
+    const { claim_code, content, table, recipient_email } = body;
 
     // Content report
     if (table === 'report') {
@@ -65,34 +65,11 @@ serve(async (req) => {
       });
     }
 
-    // Payout request
-    const raisedFmt = `$${(raised || 0).toFixed ? (raised || 0).toFixed(2) : raised}`;
-    const goalFmt = `$${(goal || 0).toFixed ? (goal || 0).toFixed(2) : goal}`;
-
-    await sendEmail(
-      ADMIN_EMAIL,
-      `💰 Payout Request — ${claim_code}`,
-      `
-      <div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:2rem;">
-        <h2 style="color:#16a34a;">Payout Request — Ummah Rise</h2>
-        <table style="width:100%;border-collapse:collapse;margin:1rem 0;">
-          <tr><td style="padding:8px;border:1px solid #e5e7eb;font-weight:600;">Claim Code</td><td style="padding:8px;border:1px solid #e5e7eb;font-family:monospace;">${claim_code}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #e5e7eb;font-weight:600;">Name</td><td style="padding:8px;border:1px solid #e5e7eb;">${payout_name || 'Not provided'}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #e5e7eb;font-weight:600;">Anon Name</td><td style="padding:8px;border:1px solid #e5e7eb;">${anon_name}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #e5e7eb;font-weight:600;">Amount Raised</td><td style="padding:8px;border:1px solid #e5e7eb;color:#16a34a;font-weight:700;">${raisedFmt}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #e5e7eb;font-weight:600;">Goal</td><td style="padding:8px;border:1px solid #e5e7eb;">${goalFmt}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #e5e7eb;font-weight:600;">Payment Method</td><td style="padding:8px;border:1px solid #e5e7eb;">${payout_method || 'Not specified'}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #e5e7eb;font-weight:600;">Payment Detail</td><td style="padding:8px;border:1px solid #e5e7eb;">${payout_detail || 'Not provided'}</td></tr>
-          <tr><td style="padding:8px;border:1px solid #e5e7eb;font-weight:600;">Table</td><td style="padding:8px;border:1px solid #e5e7eb;">${table}</td></tr>
-        </table>
-        <h3>Post Content:</h3>
-        <p style="background:#f9fafb;padding:1rem;border-radius:8px;border-left:4px solid #16a34a;">${content}</p>
-        <p style="color:#6b7280;font-size:12px;margin-top:2rem;">Review and manually send payment within 48 hours. Reply to this email once sent.</p>
-      </div>
-      `
-    );
-
-    return new Response(JSON.stringify({ success: true }), {
+    // Manual payout-by-email has been replaced by Stripe Connect transfers
+    // (see create-connect-account / create-transfer). Nothing else should
+    // reach this point.
+    return new Response(JSON.stringify({ success: false, error: 'unknown request type' }), {
+      status: 400,
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     });
 
