@@ -63,7 +63,7 @@ jobs:
       - name: Build and archive
         run: |
           cd ios/App
-          xcodebuild -workspace App.xcworkspace -scheme App -configuration Release \
+          xcodebuild -project App.xcodeproj -scheme App -configuration Release \
             -archivePath $RUNNER_TEMP/App.xcarchive archive \
             CODE_SIGN_STYLE=Manual \
             PROVISIONING_PROFILE_SPECIFIER="Ummah Rise App Store" \
