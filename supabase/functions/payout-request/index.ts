@@ -29,19 +29,10 @@ serve(async (req) => {
 
   try {
     const body = await req.json();
-    const { claim_code, content, table, recipient_email } = body;
+    const { claim_code, table, recipient_email } = body;
 
-    // Content report
-    if (table === 'report') {
-      await sendEmail(
-        ADMIN_EMAIL,
-        '🚨 Content Report — Ummah Rise',
-        `<h2>Content Report</h2><p><strong>Post ID:</strong> ${claim_code}</p><p>${content}</p>`
-      );
-      return new Response(JSON.stringify({ success: true }), {
-        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      });
-    }
+    // Content reports are now handled by the report-content function
+    // (auto-hide threshold + moderation), not this one.
 
     // Claim code email backup
     if (table === 'email-backup' && recipient_email) {

@@ -569,7 +569,7 @@ document.querySelectorAll('.nb').forEach(function(b){
 
 async function loadPosts(){
   document.getElementById('post-feed').innerHTML='<div class="loading">Loading...</div>';
-  var q='select=id,created_at,anon_name,content,tag,likes,has_fund,fund_goal,fund_raised&order=created_at.desc';
+  var q='select=id,created_at,anon_name,content,tag,likes,has_fund,fund_goal,fund_raised&hidden=eq.false&order=created_at.desc';
   if(filterTag!=='all')q+='&tag=eq.'+filterTag;
   var r=await db('posts',{query:q});
   if(!r.ok){document.getElementById('post-feed').innerHTML='<div class="empty"><div class="empty-icon">!</div><p>Could not load. Check connection.</p></div>';return;}
@@ -910,7 +910,7 @@ document.getElementById('taasiya-fund-toggle-row').addEventListener('click',func
 
 async function loadTaasiya(){
   document.getElementById('taasiya-feed').innerHTML='<div class="loading">Loading...</div>';
-  var r=await db('taasiya_posts',{query:'select=id,created_at,anon_name,content,grief_type,duas,has_fund,fund_goal,fund_raised&order=created_at.desc'});
+  var r=await db('taasiya_posts',{query:'select=id,created_at,anon_name,content,grief_type,duas,has_fund,fund_goal,fund_raised&hidden=eq.false&order=created_at.desc'});
   if(!r.ok){
     document.getElementById('taasiya-feed').innerHTML='<div class="empty"><div class="empty-icon">&#9790;</div><p>Be the first to share. You are not alone.</p></div>';
     return;
@@ -1351,15 +1351,12 @@ document.addEventListener('click',function(e){
   btn.textContent='Reported';
   btn.classList.add('reported');
   toast('Report submitted. JazakAllah Khair.');
-  fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/payout-request',{
+  var card=btn.closest('.pcard,.tcard');
+  if(card){setTimeout(function(){card.style.opacity='0.3';},400);}
+  fetch('https://nzwbgzhlffnzbadggmwz.supabase.co/functions/v1/report-content',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      claim_code:'REPORT',
-      anon_name:'Content Report',
-      content:'Post ID: '+id+' in table: '+table+' has been flagged by a user for review.',
-      raised:0,goal:0,table:'report'
-    })
+    body:JSON.stringify({post_id:id,table:table})
   }).catch(function(){});
 });
 
