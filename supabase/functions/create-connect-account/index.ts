@@ -87,6 +87,18 @@ async function createV2RecipientAccount(code: string, table: string, rowId: stri
     throw new Error(`Stripe v2 account creation failed: ${await res.text()}`);
   }
   const account = await res.json();
+
+  // v2 account creation doesn't accept business_profile directly, but the
+  // v1 update endpoint does. Without this, Express onboarding asks the
+  // claimant for a business URL, which doesn't make sense for an anonymous
+  // individual receiving a one-time donation — so we supply a generic,
+  // accurate description ourselves to skip that field.
+  await stripe.accounts.update(account.id, {
+    business_profile: {
+      product_description: 'Anonymous community fundraiser recipient on Ummah Rise',
+    },
+  });
+
   return account.id as string;
 }
 
