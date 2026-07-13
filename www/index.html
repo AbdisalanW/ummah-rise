@@ -11,6 +11,17 @@
 <meta name="apple-mobile-web-app-title" content="Ummah Rise"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
 <meta name="theme-color" content="#0d0f0e"/>
+<meta name="description" content="A safe, anonymous space for Muslims of all ages to share, seek advice, and support each other — including helping one another afford marriage."/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="Ummah Rise"/>
+<meta property="og:title" content="Ummah Rise"/>
+<meta property="og:description" content="A safe, anonymous space for Muslims of all ages to share, seek advice, and support each other — including helping one another afford marriage."/>
+<meta property="og:url" content="https://ummahrise.site"/>
+<meta property="og:image" content="https://ummahrise.site/icon-512.png"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Ummah Rise"/>
+<meta name="twitter:description" content="A safe, anonymous space for Muslims of all ages to share, seek advice, and support each other."/>
+<meta name="twitter:image" content="https://ummahrise.site/icon-512.png"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0d0f0e;--bg2:#141714;--bg3:#1a1d1a;--card:#1e221e;--card2:#242824;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.14);--text:#f0ede8;--text2:#9a9e96;--text3:#6a6e66;--green:#4ade80;--green2:#22c55e;--gdim:rgba(74,222,128,0.12);--gdim2:rgba(74,222,128,0.06);--rose:#fb7185;--rdim:rgba(251,113,133,0.12);--teal:#2dd4bf;--purple:#c4b5fd;--amber:#f5c842;--green-solid:#4ade80;--green-solid2:#22c55e;--radius:16px;--rsm:10px;--rpill:99px;--serif:'DM Serif Display',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;--shadow:0 1px 2px rgba(0,0,0,.3),0 10px 28px -10px rgba(0,0,0,.45);--nav-bg:rgba(20,23,20,0.78);}
@@ -532,6 +543,24 @@ function ago(ts){
 }
 function svgH(){return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>';}
 function svgC(){return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';}
+function svgS(){return '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>';}
+
+async function shareContent(id,type,text){
+  var url='https://ummahrise.site/?share='+encodeURIComponent(id)+'&type='+encodeURIComponent(type);
+  var shareText=(text||'').slice(0,120);
+  if(navigator.share){
+    try{
+      await navigator.share({title:'Ummah Rise',text:shareText,url:url});
+      return;
+    }catch(e){return;}
+  }
+  try{
+    await navigator.clipboard.writeText(url);
+    toast('Link copied!');
+  }catch(e){
+    toast('Could not copy link');
+  }
+}
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');clearTimeout(window._tt);window._tt=setTimeout(function(){t.classList.remove('on');},3000);}
 function randName(){var a=['Hopeful','Sincere','Thoughtful','Brave','Grateful','Patient'];var n=['soul','voice','heart','member','friend','seeker'];return 'A '+a[Math.floor(Math.random()*a.length)]+' '+n[Math.floor(Math.random()*n.length)];}
 
@@ -559,6 +588,7 @@ function enterApp(showOnboard){
   loadFunds();
   handleDonationReturn();
   handleConnectReturn();
+  handleShareLink();
   if(showOnboard&&!localStorage.getItem('ummah_onboarded')){
     document.getElementById('onboard-modal').classList.add('on');
   }
@@ -617,6 +647,7 @@ function renderPosts(data){
       '<div class="pacts">'+
         '<button class="pab like-btn" data-id="'+p.id+'">'+svgH()+'<span class="lkc">'+p.likes+'</span></button>'+
         '<button class="pab rep-btn" data-id="'+p.id+'">'+svgC()+'<span>'+reps.length+'</span></button>'+
+        '<button class="pab share-btn" data-id="'+p.id+'" data-type="post" title="Share">'+svgS()+'</button>'+
         (hasFund?'<button class="supbtn don-btn" data-id="'+p.id+'" data-type="post">Support</button>':'')+
         '<button class="report-btn flag-btn" data-id="'+p.id+'" data-table="posts">Report</button>'+
       '</div>'+
@@ -676,6 +707,13 @@ document.getElementById('post-feed').addEventListener('click',async function(e){
   if(db2){openModal(db2.getAttribute('data-id'),db2.getAttribute('data-type'));return;}
   var rs=e.target.closest('.rep-send');
   if(rs){sendReply(rs.getAttribute('data-id'));return;}
+  var sb=e.target.closest('.share-btn');
+  if(sb){
+    var sid=sb.getAttribute('data-id');
+    var sp=postsCache.find(function(x){return x.id===sid;});
+    shareContent(sid,'post',sp?sp.content:'');
+    return;
+  }
 });
 
 async function sendReply(id){
@@ -734,7 +772,7 @@ function renderFunds(data){
       '<div class="pstats" style="margin:.5rem 0 .9rem;"><span><span class="pval">'+fmt(fn.raised)+'</span> raised</span><span>Goal '+fmt(fn.goal)+'</span></div>'+
       '<div class="facts">'+
         '<button class="fdon don-btn" data-id="'+fn.id+'" data-type="fund">Donate - JazakAllah Khair</button>'+
-        '<button class="fshr shr-btn">Share</button>'+
+        '<button class="fshr shr-btn" data-id="'+fn.id+'">Share</button>'+
       '</div>';
     f.appendChild(div);
   });
@@ -746,7 +784,12 @@ document.getElementById('fund-feed').addEventListener('click',function(e){
   var db2=e.target.closest('.don-btn');
   if(db2){openModal(db2.getAttribute('data-id'),'fund');return;}
   var sb=e.target.closest('.shr-btn');
-  if(sb){toast('Share link copied!');return;}
+  if(sb){
+    var sid=sb.getAttribute('data-id');
+    var sfn=fundsCache.find(function(x){return x.id===sid;});
+    shareContent(sid,'fund',sfn?sfn.content:'');
+    return;
+  }
 });
 
 document.getElementById('fund-toggle-row').addEventListener('click',function(){
@@ -901,6 +944,27 @@ function handleConnectReturn(){
   document.getElementById('claim-lookup-btn').click();
 }
 
+async function handleShareLink(){
+  var params=new URLSearchParams(window.location.search);
+  var shareId=params.get('share');
+  var type=params.get('type');
+  if(!shareId)return;
+  window.history.replaceState({},'',window.location.pathname);
+  var cardSelector='.pcard';
+  if(type==='taasiya'){showScr('taasiya');await loadTaasiya();cardSelector='.tcard';}
+  else if(type==='fund'){showScr('fund');await loadFunds();cardSelector='.fcard';}
+  else {showScr('home');await loadPosts();cardSelector='.pcard';}
+  setTimeout(function(){
+    var btn=document.querySelector('[data-id="'+shareId+'"]');
+    var card=btn?btn.closest(cardSelector):null;
+    if(!card){toast('That post may have been removed.');return;}
+    card.scrollIntoView({behavior:'smooth',block:'center'});
+    card.style.outline='2px solid var(--green-solid)';
+    card.style.outlineOffset='2px';
+    setTimeout(function(){card.style.outline='';card.style.outlineOffset='';},2000);
+  },350);
+}
+
 document.getElementById('cancel-btn').addEventListener('click',closeModal);
 document.getElementById('modal').addEventListener('click',function(e){if(e.target===this)closeModal();});
 function closeModal(){document.getElementById('modal').classList.remove('on');modalTarget=null;}
@@ -957,6 +1021,7 @@ function renderTaasiya(data){
       :'')+
       '<div class="tcard-acts">'+
         '<button class="dua-btn" data-id="'+t.id+'">&#10024; Send Dua <span class="dua-count">'+(t.duas||0)+'</span></button>'+
+        '<button class="pab share-btn" data-id="'+t.id+'" data-type="taasiya" title="Share">'+svgS()+'</button>'+
         '<button class="report-btn flag-btn" data-id="'+t.id+'" data-table="taasiya_posts" style="margin-left:auto;">Report</button>'+
       '</div>';
     f.appendChild(div);
@@ -966,6 +1031,13 @@ function renderTaasiya(data){
 document.getElementById('taasiya-feed').addEventListener('click',async function(e){
   var db2=e.target.closest('.don-btn');
   if(db2){openModal(db2.getAttribute('data-id'),'taasiya');return;}
+  var sb=e.target.closest('.share-btn');
+  if(sb){
+    var sid=sb.getAttribute('data-id');
+    var sp=taasiyaCache.find(function(x){return x.id===sid;});
+    shareContent(sid,'taasiya',sp?sp.content:'');
+    return;
+  }
   var btn=e.target.closest('.dua-btn');
   if(btn){
     var id=btn.getAttribute('data-id');
