@@ -261,7 +261,8 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       <div class="anote">&#128274; Your identity is never stored or revealed</div>
       <div class="fgrp">
         <label class="flbl">What is on your heart?</label>
-        <textarea id="ctxt" placeholder="Share freely. No one knows who you are..."></textarea>
+        <textarea id="ctxt" maxlength="2000" placeholder="Share freely. No one knows who you are..."></textarea>
+        <div id="ctxt-count" style="font-size:11px;color:var(--text3);text-align:right;margin-top:.25rem;">0 / 2000</div>
         <div id="prompt-chips" style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">
           <button type="button" class="prompt-chip" style="font-size:11px;padding:5px 11px;border-radius:var(--rpill);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;">My family won't let me marry who I love</button>
           <button type="button" class="prompt-chip" style="font-size:11px;padding:5px 11px;border-radius:var(--rpill);border:1px solid var(--border2);background:transparent;color:var(--text2);cursor:pointer;">I'm struggling with my faith</button>
@@ -381,7 +382,8 @@ select:focus{outline:none;border-color:rgba(74,222,128,.4);}
       </div>
       <div class="fgrp">
         <label class="flbl">Share what is on your heart</label>
-        <textarea id="taasiya-txt" placeholder="You are safe here. No one knows who you are..." style="width:100%;min-height:120px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);padding:.75rem;font-size:14px;resize:vertical;"></textarea>
+        <textarea id="taasiya-txt" maxlength="2000" placeholder="You are safe here. No one knows who you are..." style="width:100%;min-height:120px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--rsm);color:var(--text);padding:.75rem;font-size:14px;resize:vertical;"></textarea>
+        <div id="taasiya-txt-count" style="font-size:11px;color:var(--text3);text-align:right;margin-top:.25rem;">0 / 2000</div>
       </div>
       <div class="fgrp">
         <div class="trow" id="taasiya-fund-toggle-row">
@@ -619,7 +621,7 @@ function renderPosts(data){
       '<div class="reps" id="reps-'+p.id+'">'+
         repHtml+
         '<div class="rcompose">'+
-          '<input class="rinput" id="ri-'+p.id+'" placeholder="Reply anonymously..."/>'+
+          '<input class="rinput" id="ri-'+p.id+'" maxlength="500" placeholder="Reply anonymously..."/>'+
           '<button class="rsend rep-send" data-id="'+p.id+'">Send</button>'+
         '</div>'+
       '</div>';
@@ -745,9 +747,14 @@ document.getElementById('fund-toggle-row').addEventListener('click',function(){
   document.getElementById('goal-grp').style.display=fundOn?'block':'none';
 });
 
+document.getElementById('ctxt').addEventListener('input',function(){
+  document.getElementById('ctxt-count').textContent=this.value.length+' / 2000';
+});
+
 document.getElementById('post-btn').addEventListener('click',async function(){
   var txt=document.getElementById('ctxt').value.trim();
   if(!txt){toast('Write something first');return;}
+  if(txt.length>2000){toast('Please keep posts under 2000 characters');return;}
   var tag=document.getElementById('ctag').value;
   var goal=fundOn?(parseInt(document.getElementById('goal-input').value)||0):0;
   var nm=randName();
@@ -987,9 +994,14 @@ document.querySelectorAll('.type-pill').forEach(function(b){
   });
 });
 
+document.getElementById('taasiya-txt').addEventListener('input',function(){
+  document.getElementById('taasiya-txt-count').textContent=this.value.length+' / 2000';
+});
+
 document.getElementById('taasiya-post-btn').addEventListener('click',async function(){
   var txt=document.getElementById('taasiya-txt').value.trim();
   if(!txt){toast('Share what is on your heart');return;}
+  if(txt.length>2000){toast('Please keep this under 2000 characters');return;}
   var nm=randName();
   var goal=taasiyaFundOn?(parseInt(document.getElementById('taasiya-goal-input').value)||0):0;
   var taasiyaClaimCode=goal>0?generateClaimCode():null;
